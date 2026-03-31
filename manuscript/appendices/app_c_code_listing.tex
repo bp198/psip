@@ -1,0 +1,282 @@
+%% ============================================================
+%% APPENDIX C — CODE LISTINGS: CORE ALGORITHMS
+%% ============================================================
+
+\chapter{Code Listings: Core Algorithm Implementations}
+\label{app:code}
+
+This appendix reproduces the five central algorithm implementations
+from the STRATEGOS pipeline defence codebase.  All code is Python~3.11,
+uses only NumPy and SciPy (no deep learning frameworks), and is
+covered by the 310-test suite described in \cref{ch:physics}.
+The full source is available in the project repository at
+\texttt{src/zone\_c/} and \texttt{src/zone\_a/}.
+
+%% ------------------------------------------------------------------
+\section*{C.1\quad BS~7910 FAD Assessment (\texttt{assess\_flaw})}
+
+\lstset{style=pythonstyle}
+
+\begin{lstlisting}[
+  caption={BS~7910:2019 Level~2 Option~1 FAD assessment function.
+    Implements the full 8-step assessment procedure from hoop stress
+    calculation through reserve factor computation.
+    Source: \texttt{src/zone\_c/physics/fad\_engine.py}.},
+  label=lst:assess_flaw,
+]
+def assess_flaw(
+    mat: MaterialProperties,
+    flaw: FlawGeometry,
+    pipe: PipeGeometry,
+    weld: WeldJoint,
+    pressure: float,
+    sigma_b: float = 0.0,
+    sigma_residual: float = 0.0,
+) -> FADAssessmentResult:
+    """BS 7910 Option 1 FAD assessment for a flaw in a pipeline weld."""
+
+    # Step 1: Hoop stress from Barlow's formula
+    sigma_m = hoop_stress_barlow(
+        pressure, pipe.outer_diameter, pipe.wall_thickness
+    )
+
+    # Step 2: Apply weld SCF to local stress
+    sigma_m_local = sigma_m * weld.scf
+
+    # Step 3: Stress intensity factor (surface crack in cylinder)
+    K_I = stress_intensity_surface_flaw(
+        sigma_m=sigma_m_local + sigma_residual,
+        sigma_b=sigma_b,
+        a=flaw.a,
+        c=flaw.c,
+        B=pipe.wall_thickness,
+    )
+    K_I_m = K_I / np.sqrt(1000.0)   # MPa*sqrt(mm) -> MPa*sqrt(m)
+
+    # Step 4: Fracture ratio
+    Kr = K_I_m / mat.K_mat
+
+    # Step 5: Reference stress and load ratio
+    sigma_ref = reference_stress_axial_surface(
+        sigma_m=sigma_m_local, sigma_b=sigma_b,
+        a=flaw.a, two_c=flaw.two_c,
+        B=pipe.wall_thickness, R_mean=pipe.mean_radius,
+    )
+    Lr = sigma_ref / mat.sigma_y
+
+    # Step 6: FAD curve evaluation
+    f_Lr   = fad_option1(Lr, mat)
+    Lr_max = compute_Lr_max(mat.sigma_y, mat.sigma_u)
+
+    # Step 7: Acceptability check
+    is_acceptable = (Kr <= f_Lr) and (Lr < Lr_max)
+
+    # Step 8: Reserve factor (radial distance to FAD origin)
+    rf = np.sqrt(Kr**2 + Lr**2)
+
+    return FADAssessmentResult(
+        Kr=Kr, Lr=Lr, f_Lr=f_Lr, Lr_max=Lr_max,
+        is_acceptable=is_acceptable, reserve_factor=rf,
+    )
+\end{lstlisting}
+
+%% ------------------------------------------------------------------
+\section*{C.2\quad LP Solver for Candidate Target $q$ (\texttt{\_solve\_lp\_for\_target\_q})}
+
+\begin{lstlisting}[
+  caption={LP$_q$ solver for the SSE enumeration algorithm.
+    Implements \cref{eq:lp_full} using \texttt{scipy.optimize.linprog}
+    with the HiGHS backend.  The sign convention on the best-response
+    constraint is critical: $+\varepsilon_\mathrm{eff}$ on $c_q$,
+    $-\varepsilon_\mathrm{eff}$ on $c_j$.
+    Source: \texttt{src/zone\_c/game/stackelberg\_game.py}.},
+  label=lst:lp_solver,
+]
+def _solve_lp_for_target_q(
+    U_a:    np.ndarray,   # Attacker utilities (N,)
+    delta:  float,        # Protection factor (residual risk)
+    budget: float,        # Max sum(c_i)
+    q:      int,          # Candidate attacker target
+):
+    """Solve LP_q: maximise defender utility if attacker targets q."""
+    N   = len(U_a)
+    eps = 1.0 - delta      # effective gain factor = 0.75
+
+    # Objective: minimise -eps * U_a[q] * c_q
+    c_obj    = np.zeros(N)
+    c_obj[q] = -eps * U_a[q]
+
+    # Budget constraint: sum(c_i) <= B
+    A_budget = np.ones((1, N))
+    b_budget = np.array([budget])
+
+    # Best-response constraints: EU_a(q) >= EU_a(j) for all j != q
+    # Rearranged to <= form:
+    #   eps * U_a[q] * c_q  -  eps * U_a[j] * c_j  <=  U_a[q] - U_a[j]
+    A_br, b_br = [], []
+    for j in range(N):
+        if j == q:
+            continue
+        row    = np.zeros(N)
+        row[q] = +eps * U_a[q]   # NOTE: positive coefficient on c_q
+        row[j] = -eps * U_a[j]   # NOTE: negative coefficient on c_j
+        A_br.append(row)
+        b_br.append(U_a[q] - U_a[j])
+
+    A_ub = np.vstack([A_budget, np.array(A_br)])
+    b_ub = np.concatenate([b_budget, np.array(b_br)])
+
+    result = linprog(
+        c_obj,
+        A_ub=A_ub, b_ub=b_ub,
+        bounds=[(0.0, 1.0)] * N,
+        method="highs",
+    )
+
+    if result.status == 0:    # optimal
+        return result.x, -result.fun, "optimal"
+    elif result.status == 2:  # infeasible
+        return None, -np.inf, "infeasible"
+    else:
+        return None, -np.inf, f"lp_status_{result.status}"
+\end{lstlisting}
+
+%% ------------------------------------------------------------------
+\section*{C.3\quad WeldDefectMLP Forward Pass (\texttt{forward})}
+
+\begin{lstlisting}[
+  caption={NumPy forward pass for the WeldDefectMLP ($32\to128\to64\to4$).
+    Intermediate activations are cached in \texttt{\_cache} for use by
+    the analytical backpropagation and adversarial gradient computation.
+    Source: \texttt{src/zone\_a/nde\_model.py}.},
+  label=lst:mlp_forward,
+]
+def forward(
+    self,
+    X:         np.ndarray,   # (N, 32) input features
+    training:  bool = False,
+    dropout_p: float = 0.3,
+    seed:      int  = None,
+) -> np.ndarray:              # returns (N, 4) softmax probabilities
+    """Forward pass: 32 -> 128 (ReLU+Dropout) -> 64 (ReLU) -> 4 (Softmax)."""
+    rng = np.random.default_rng(seed)
+
+    # Layer 1: 32 -> 128
+    z1 = X  @ self.W1 + self.b1               # (N, 128)
+    a1 = relu(z1)
+
+    if training and dropout_p > 0:
+        mask1 = (rng.random(a1.shape) > dropout_p).astype(np.float32)
+        a1    = a1 * mask1 / (1.0 - dropout_p)
+    else:
+        mask1 = np.ones_like(a1)
+
+    # Layer 2: 128 -> 64
+    z2 = a1 @ self.W2 + self.b2               # (N, 64)
+    a2 = relu(z2)
+
+    # Output layer: 64 -> 4 (Softmax)
+    z3    = a2 @ self.W3 + self.b3            # (N, 4)
+    probs = softmax(z3)
+
+    # Cache for backprop and adversarial gradient
+    self._cache = {
+        "X": X, "z1": z1, "a1": a1, "mask1": mask1,
+        "z2": z2, "a2": a2, "z3": z3, "probs": probs,
+    }
+    return probs
+\end{lstlisting}
+
+%% ------------------------------------------------------------------
+\section*{C.4\quad FGSM Attack (\texttt{fgsm\_attack})}
+
+\begin{lstlisting}[
+  caption={Fast Gradient Sign Method implementation.
+    A single forward pass populates the gradient cache; the input
+    gradient is then computed analytically via \texttt{compute\_input\_gradient()}.
+    Source: \texttt{src/zone\_a/adversarial\_attacks.py}.},
+  label=lst:fgsm,
+]
+def fgsm_attack(
+    model:  WeldDefectMLP,
+    X:      np.ndarray,     # (N, 32) clean features
+    y:      np.ndarray,     # (N,)   true labels
+    config: AttackConfig,   # .epsilon, .clip_min, .clip_max
+) -> AttackResult:
+    """Single-step L_inf FGSM perturbation (Goodfellow et al., 2015)."""
+    X = X.astype(np.float32)
+
+    # Step 1: Forward pass to populate gradient cache
+    model.forward(X, training=False)
+
+    # Step 2: Compute analytical input gradient dL/dX
+    grad_x = model.compute_input_gradient(y)   # (N, 32)
+
+    # Step 3: Perturb in the signed gradient direction
+    X_adv = np.clip(
+        X + config.epsilon * np.sign(grad_x),
+        config.clip_min,
+        config.clip_max,
+    ).astype(np.float32)
+
+    return _build_result(model, X, X_adv, y, "FGSM")
+\end{lstlisting}
+
+%% ------------------------------------------------------------------
+\section*{C.5\quad PGD Attack (\texttt{pgd\_attack})}
+
+\begin{lstlisting}[
+  caption={Projected Gradient Descent attack (Madry et al., 2018).
+    Identical to BIM except for the random initialisation within
+    the $\varepsilon$-ball.  The random start is the sole structural
+    difference responsible for the BIM $>$ PGD inversion discussed
+    in \cref{subsec:adv_bim_pgd}.
+    Source: \texttt{src/zone\_a/adversarial\_attacks.py}.},
+  label=lst:pgd,
+]
+def pgd_attack(
+    model:  WeldDefectMLP,
+    X:      np.ndarray,
+    y:      np.ndarray,
+    config: AttackConfig,
+    seed:   int = 42,
+) -> AttackResult:
+    """PGD: BIM with random L_inf-ball initialisation (Madry et al., 2018)."""
+    rng   = np.random.default_rng(seed)
+    X     = X.astype(np.float32)
+    eps   = config.epsilon
+    alpha = config.step_size
+
+    # Random start: uniform noise in [-eps, eps]^32
+    if config.random_start:
+        noise = rng.uniform(-eps, eps, X.shape).astype(np.float32)
+        X_adv = np.clip(X + noise, config.clip_min, config.clip_max)
+    else:
+        X_adv = X.copy()
+
+    # Iterative signed-gradient steps with L_inf projection
+    for _ in range(config.n_steps):
+        model.forward(X_adv, training=False)
+        grad_x = model.compute_input_gradient(y)
+
+        X_adv = X_adv + alpha * np.sign(grad_x)
+
+        # Project onto epsilon-ball centred at original X
+        X_adv = np.clip(X_adv, X - eps, X + eps)
+        X_adv = np.clip(X_adv, config.clip_min, config.clip_max)
+        X_adv = X_adv.astype(np.float32)
+
+    return _build_result(model, X, X_adv, y, "PGD")
+\end{lstlisting}
+
+\vspace{1em}
+\noindent\textbf{Reproduction note.}
+All five listings above are taken verbatim from the validated codebase.
+To reproduce the results in \cref{tab:adv_results,tab:scenario_comparison},
+run:
+\begin{lstlisting}[language=bash, numbers=none, frame=none, backgroundcolor=\color{white}]
+cd strategos-pipeline-defense
+python notebooks/sprint4_adversarial_nde_demo.py   # Zone A results
+python notebooks/sprint3_game_demo.py              # Zone C results
+\end{lstlisting}
+Both scripts reproduce results deterministically with \texttt{seed=42}.

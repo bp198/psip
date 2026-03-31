@@ -1,0 +1,403 @@
+%% ============================================================
+%% CHAPTER 2 — LITERATURE REVIEW
+%% ============================================================
+
+\chapter{Literature Review}
+\label{ch:literature}
+
+\section{Overview}
+\label{sec:lit_overview}
+
+This chapter surveys three bodies of research that this thesis bridges.
+\Cref{sec:lit_integrity} reviews pipeline structural integrity and
+fracture/fatigue assessment, tracing the development from linear elastic
+fracture mechanics to the two-parameter Failure Assessment Diagram now
+codified in BS~7910:2019.  \Cref{sec:lit_games} examines Stackelberg
+security game theory and its deployment in critical infrastructure
+protection, identifying the absence of physics-grounded payoff functions
+as the central methodological gap.  \Cref{sec:lit_adv} covers adversarial
+robustness of machine learning systems, with particular attention to the
+sparse literature on NDE classifier security.  \Cref{sec:lit_gap}
+synthesises all three pillars and locates the specific contribution of
+this thesis within the existing scholarly landscape.
+
+%% ------------------------------------------------------------------
+\section{Pipeline Structural Integrity and Failure Assessment}
+\label{sec:lit_integrity}
+
+\subsection{Fracture Mechanics and Fitness-for-Service}
+\label{subsec:lit_fracture}
+
+The theoretical basis for pipeline integrity assessment is \ac{LEFM},
+in which a surface crack of half-length $a$ subjected to remote stress
+$\sigma$ develops a stress intensity factor $K_\mathrm{I} = Y\sigma\sqrt{\pi a}$,
+where $Y$ is a geometry-dependent correction factor~\cite{Anderson2005}.
+Fracture occurs when $K_\mathrm{I}$ reaches the material's plane-strain
+fracture toughness $K_\mathrm{Ic}$, a single-parameter criterion valid
+for small-scale yielding.  For transmission pipelines operating near the
+toughness transition temperature of older carbon steels, and for weld
+heat-affected zones with reduced toughness, this criterion is conservative
+but not always discriminating~\cite{Francis2014}.
+
+The R6 procedure, first published by the Central Electricity Generating
+Board in 1976 and continuously revised through the British Energy R6
+revision~4 programme~\cite{Anderson2005}, resolved this limitation by
+introducing a two-parameter \ac{FAD}: the fracture ratio
+$\Kr = K_\mathrm{I}/K_\mathrm{mat}$ tracks proximity to fracture
+instability, and the load ratio $\Lr = \sigma_\mathrm{ref}/\sigma_y$
+tracks proximity to plastic collapse.  A flaw is deemed acceptable if
+and only if the assessment point $(\Lr, \Kr)$ lies within the failure
+locus $\Kr \leq f(\Lr)$.  The R6 approach was subsequently harmonised
+into three analysis levels of increasing rigour.  The \ac{BS7910}:2019
+Level~1 screening uses a conservative linearised locus; Level~2 uses
+the Option~1 analytical curve adopted in this thesis; Level~3 employs
+material-specific stress--strain data for crack-growth analysis in
+high-consequence applications~\cite{BS7910:2019}.
+
+A parallel American standard, \ac{API}~579-1/\ac{ASME}~FFS-1, provides
+three broadly equivalent levels~\cite{API579:2021}.  Key differences
+relevant to transmission pipelines include: (i)~API~579 incorporates
+explicit guidance for locally-thinned areas using the modified FAD
+(MFAD) concept; (ii)~BS~7910 provides more extensive Annex~P solutions
+for stress intensity factors in cylindrical shells under combined
+loading; and (iii)~BS~7910:2019 Annex~B calibrates its partial safety
+factors directly against pipeline failure statistics, making it the
+preferred standard for probabilistic integrity assessments of the type
+conducted in \cref{ch:physics}~\cite{BS7910:2019,API579:2021,Mihm2020}.
+
+The $L_{r,\max}$ cut-off, defined as $(\sigma_y + \sigma_u)/(2\sigma_y)$
+in BS~7910, prevents the FAD from being applied in the regime where
+strain hardening is exhausted.  For API~5L X60 steel
+($\sigma_y = \SI{414}{\mega\pascal}$, $\sigma_u = \SI{517}{\mega\pascal}$),
+this yields $L_{r,\max} = 1.15$; for X65
+($\sigma_y = \SI{448}{\mega\pascal}$, $\sigma_u = \SI{531}{\mega\pascal}$),
+$L_{r,\max} = 1.12$ — values confirmed in the \texttt{fad\_engine.py}
+validation suite (\cref{ch:physics}).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.78\textwidth]{fig2_fad_grade_comparison}
+  \caption{BS~7910:2019 Level~2 Option~1 FAD curves for API~5L grades
+    X52 through X70.  Higher yield strength shifts $L_{r,\max}$ leftward,
+    reducing the acceptable load ratio range.  Assessment points for
+    nominal and critical flaws are shown for X60 (primary grade in the
+    Gulf Coast network model).}
+  \label{fig:fad_grade_comparison}
+\end{figure}
+
+%% -----
+\subsection{Fatigue Design of Welded Joints}
+\label{subsec:lit_fatigue}
+
+Fatigue failure of welded joints is governed by S-N curves of the form
+$N = C \cdot \Delta\sigma^{-m}$, where $N$ is the number of cycles to
+failure, $\Delta\sigma$ the stress range, and the constants $C$ and $m$
+are weld-class-dependent~\cite{IIW_Fatigue:2016}.  The \ac{IIW}
+Recommendations for Fatigue Design of Welded Joints and Components
+codify 14 FAT classes — labelled by the characteristic fatigue strength
+at $2 \times 10^6$ cycles, in megapascals — from FAT~36 (cover-plated
+beams, poorest quality) to FAT~160 (smooth full-penetration welds with
+post-weld machining)~\cite{IIW_Fatigue:2016,Murakami2002}.  Pipeline
+girth welds qualified to API~1104:2021 acceptance criteria typically
+fall in the FAT~71--FAT~90 range, depending on weld quality level and
+post-weld heat treatment~\cite{API1104:2021}.
+
+Cumulative fatigue damage is assessed through Miner's linear damage rule:
+\begin{equation}
+  D = \sum_i \frac{n_i}{N_i(\Delta\sigma_i)} \leq D_\mathrm{cr},
+  \label{eq:miners_rule}
+\end{equation}
+where $n_i$ is the counted number of cycles in stress-range block $i$,
+$N_i$ is the corresponding endurance life from the S-N curve, and
+$D_\mathrm{cr} = 1.0$ is the critical damage sum in the IIW
+formulation (conservatively reduced to $0.5$ for safety-critical
+applications under variable amplitude loading)~\cite{IIW_Fatigue:2016}.
+
+The S-N relationship exhibits a bilinear character in the high-cycle
+regime: a primary inverse slope $m = 3$ for $N < 10^7$ cycles
+transitions to a secondary slope $m = 5$ beyond the constant-amplitude
+fatigue limit, following the IIW variable amplitude damage
+model~\cite{IIW_Fatigue:2016}.  This bilinear representation reflects
+the physical transition from short-crack propagation, dominated by
+crack-tip plasticity and Miner accumulation, to the threshold regime
+where crack closure begins to retard propagation significantly
+\cite{Murakami2002,Anderson2005}.  The \texttt{fatigue\_engine.py}
+module implements both slopes with the correct IIW FAT-class lookup
+table, validated against published reference endurance values in the
+310-test suite.
+
+Post-weld heat treatment (\acs{PWHT}) can improve the FAT class by one
+to two levels by relieving residual tensile stresses at the weld toe —
+the primary crack initiation site in girth welds under axial cycling.
+For in-service transmission pipelines, however, \acs{PWHT} is
+operationally impractical for most repair scenarios, making the
+as-welded FAT class the default for fleet-level assessments~\cite{API1104:2021,
+Francis2014}.  This conservatism is embedded in the calibrated seam-type
+hierarchy of \cref{tab:calibrated_scf}: fillet and lap-welded legacy
+joints (pre-1970, LF-ERW, associated with poor weld quality and no
+\acs{PWHT}) exhibit the highest $P_f$ values in the Monte Carlo engine.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.82\textwidth]{fig3_sn_weld_comparison}
+  \caption{IIW S-N curves for pipeline-relevant weld classes (FAT~63
+    to FAT~100).  A two-order-of-magnitude spread in fatigue life exists
+    at $\Delta\sigma = \SI{100}{\mega\pascal}$.  The bilinear transition
+    at $N = 10^7$ cycles is evident for all classes.  Weld class
+    assignments follow API~1104:2021 acceptance criteria.}
+  \label{fig:sn_comparison}
+\end{figure}
+
+%% -----
+\subsection{Monte Carlo Methods in Reliability Assessment}
+\label{subsec:lit_mc}
+
+Probabilistic integrity management applies \ac{MC} simulation to
+propagate scatter in material properties, flaw dimensions, and operating
+loads into a distribution of safety margins~\cite{Caleyo2002}.  The key
+advantage over deterministic assessment is the direct quantification of
+failure probability $P_f$, which is comparable against regulatory risk
+tolerability criteria (typically $10^{-4}$--$10^{-6}$ per year for
+high-consequence areas under \ac{ASME}~B31.8~\cite{ASME_B31_8:2025}).
+
+Caleyo et al.~\cite{Caleyo2002} demonstrated MC integration for pipeline
+corrosion growth, sampling from lognormal wall-loss distributions and
+propagating to burst failure pressure.  Zhu et al.~\cite{Zhu2013}
+extended the framework to strain-based design, coupling MC with
+finite-element limit-load solutions for wrinkle defects.  Mo and
+Li~\cite{Mo2012} applied MC to fatigue crack growth in girth welds under
+variable amplitude pressure cycling, finding that SCF uncertainty
+dominates the failure probability variance — a result consistent with the
+sensitivity analysis in \cref{fig:pf_scf_sensitivity} of this thesis.
+The present work extends this line of research to a multi-segment network
+context, where individual segment $P_f$ values computed from
+$N = \num{10000}$ MC trials are assembled into a NetworkX graph that
+feeds directly into the Stackelberg game payoff calculation in
+\cref{sec:physics_game}.
+
+%% ------------------------------------------------------------------
+\section{Security Games for Critical Infrastructure}
+\label{sec:lit_games}
+
+\subsection{Stackelberg Security Games: Foundations}
+\label{subsec:lit_ssg}
+
+A \acf{SCG} models a sequential two-player interaction where a
+\emph{defender} (leader) commits to a mixed strategy $\bmc$ first,
+after which an \emph{attacker} (follower) best-responds having observed
+the marginal coverage probabilities~\cite{Conitzer2006}.  Under the
+assumption of attacker rationality, the defender seeks a
+\acf{SSE} that maximises her expected utility given the attacker's
+rational best-response.  Von Stengel and Zamir established that a
+Stackelberg commitment weakly dominates Nash equilibrium for the leader,
+providing a rigorous game-theoretic justification for
+commitment-based security protocols~\cite{Conitzer2006}.
+
+Paruchuri et al.~\cite{Paruchuri2008} established the
+\textsc{DOBSS} LP formulation for Bayesian \acp{SCG} with multiple
+attacker types, in which each type $\theta \in \Theta$ is represented
+by a prior probability $p_\theta$ and a utility function $\Ua^\theta(i)$.
+The Bayesian expected defender utility is the prior-weighted average of
+type-conditional utilities at the rational best-response target.
+Because the follower best-response is a piecewise function of the
+leader's mixed strategy, the problem is non-convex in general;
+\textsc{DOBSS} linearises it via an enumeration of candidate optimal
+attacker targets, solving one LP per target and selecting the global
+optimum~\cite{Paruchuri2008}.  This approach scales polynomially in the
+number of targets $n$ and attack types $|\Theta|$, making it tractable
+for the 22-target, 3-type instance in \cref{ch:physics}.
+
+Korzhyk et al.~\cite{Korzhyk2011} subsequently showed that under mild
+conditions on the utility structure (unique attacker best-response), the
+Stackelberg value equals the Nash equilibrium value of the zero-sum
+game, providing a mathematical bridge between the two solution concepts.
+This result is exploited in \cref{subsec:physics_lp} to establish the
+uniqueness of the LP-derived SSE for the physics-informed payoff structure.
+
+\subsection{Deployed Systems}
+\label{subsec:lit_deployed}
+
+Real-world deployments have demonstrated that SSG-based patrol scheduling
+can meaningfully reduce adversarial incident rates.  ARMOR randomised
+K-9 unit and police patrol routes across the four terminals of Los Angeles
+International Airport~\cite{An2013}; a post-deployment evaluation by the
+\ac{TSA} reported a statistically significant reduction in security
+anomalies relative to the human-scheduled baseline.  PROTECT scheduled
+U.S.\ Coast Guard patrol vessels along Boston Harbour ferry routes,
+incorporating three adversary models — opportunistic, capable, and
+sophisticated — analogous to the three attacker types (STRATEGIC,
+OPPORTUNISTIC, STATE\_ACTOR) in this thesis~\cite{Tambe2011}.  IRIS
+randomised U.S.\ Federal Air Marshal seat assignments on domestic flights,
+demonstrating deployment at a national scale with real operational constraints~\cite{Tambe2011}.
+
+A structural limitation shared by all deployed systems is that attacker
+payoffs are supplied by subject-matter experts as scalar constants,
+without formal derivation from structural or physical models of the
+protected assets.  A technically sophisticated adversary who understands
+that a fillet-welded legacy joint at maximum operating pressure has
+$P_f \approx \num{0.88}$ while a seamless segment has $P_f \approx
+\num{0.53}$ — a fourfold difference in consequence-weighted failure
+probability per unit of attack effort — will exploit the gap between
+the expert-estimated payoffs and physical reality.  The physics-informed
+payoff structure developed in \cref{ch:physics} closes this gap directly.
+
+\subsection{Critical Infrastructure and Network Attacks}
+\label{subsec:lit_ci}
+
+Network-theoretic analysis of critical infrastructure~\cite{Newman2010,
+Albert2000} demonstrates that real-world infrastructure graphs exhibit
+scale-free degree distributions, and removal of a small number of
+high-betweenness nodes causes disproportionate disruption to global
+network connectivity~\cite{Albert2000}.  Brown et al.~\cite{Brown2006}
+applied bilevel optimisation to find the worst-case interdiction set for
+electric power grids; Lewis~\cite{Lewis2014} extended the framework to
+interdependent pipeline and power systems, showing that cascading failures
+initiated at pipeline compression stations can propagate to wide-area
+power outages.
+
+A key limitation of purely network-theoretic interdiction models is the
+assumption of structural equivalence across edges: an attacker maximising
+betweenness disruption ignores whether the target pipe segment is likely
+to fail under the applied attack mode.  Conversely, a purely structural
+approach minimising $P_f$ ignores the network consequence of a given
+failure.  The Bayesian SSG payoff structure in this thesis explicitly
+combines both dimensions: the STATE\_ACTOR type is parameterised to
+weight both $P_f$ and betweenness centrality, while the STRATEGIC type
+prioritises asset value and the OPPORTUNISTIC type exploits structural
+weakness alone.
+
+%% ------------------------------------------------------------------
+\section{Adversarial Machine Learning and NDE Security}
+\label{sec:lit_adv}
+
+\subsection{Adversarial Attacks on Neural Networks}
+\label{subsec:lit_adv_basics}
+
+Szegedy et al.~\cite{Szegedy2014} first demonstrated that small,
+imperceptible perturbations to input features can cause deep neural
+networks to misclassify with high confidence.  The underlying mechanism
+is the geometry of high-dimensional decision boundaries: in feature
+spaces of dimension $d \gg 1$, class boundaries are dense, and the
+distance from a correctly classified point to the nearest misclassified
+region is $\mathcal{O}(1/\sqrt{d})$ for random inputs, shrinking with
+problem dimensionality~\cite{Goodfellow2016}.  Goodfellow et al.\
+proposed the \acf{FGSM}~\cite{Goodfellow2015}:
+\begin{equation}
+  \bm{x}^\mathrm{adv} = \bm{x} + \eps \cdot \mathrm{sign}
+    \!\left(\nabla_{\bm{x}} \mathcal{L}(\theta, \bm{x}, y)\right),
+  \label{eq:fgsm}
+\end{equation}
+which adds a single signed gradient step bounded in $L_\infty$ norm by
+$\eps$.  The key insight is that the gradient direction, not its
+magnitude, determines the adversarial perturbation, making FGSM
+computationally efficient for any differentiable loss.
+
+Kurakin et al.~\cite{Kurakin2017} extended FGSM to the iterative
+\ac{BIM}, applying $T$ small FGSM steps with $L_\infty$ projection
+after each iteration.  BIM generally achieves higher attack success
+rates than FGSM at the same $\eps$ budget, though at greater
+computational cost.  Madry et al.~\cite{Madry2018} formalised \ac{PGD}
+— BIM initialised from a random perturbation within the $L_\infty(\eps)$
+ball — as the canonical strongest first-order attack under the $L_\infty$
+threat model.  A classifier trained to resist PGD perturbations
+(adversarial training) is provably robust to all first-order attacks
+within the same threat model~\cite{Madry2018}.  The observation in
+\cref{ch:adversarial} that BIM outperforms PGD on the NDE feature set
+(ASR $\num{20.1}\% > \num{9.4}\%$) reveals an important domain-specific
+deviation from the standard ordering: local gradient curvature, not
+random initialisation, dominates in the structured 32-dimensional NDE
+feature space.
+
+Carlini and Wagner~\cite{Carlini2017} subsequently showed that many
+first-generation defences — input preprocessing, detection networks —
+can be circumvented by stronger optimisation-based attacks.  This raises
+the bar for what constitutes genuine adversarial robustness in
+safety-critical applications, and motivates the quantitative ASR
+measurements in \cref{ch:adversarial} rather than qualitative
+robustness claims.
+
+\subsection{Machine Learning for NDE}
+\label{subsec:lit_nde_ml}
+
+Deep learning methods have been applied to automated weld defect
+classification from radiographic~\cite{Munir2019} and ultrasonic
+inspection data~\cite{Meyendorf2022}.  Munir et al.~\cite{Munir2019}
+achieved $>97\%$ accuracy on a four-class weld defect radiograph dataset
+using a ResNet-50 backbone, demonstrating that production-grade
+classification accuracy is achievable with moderate training sets.
+Meyendorf et al.~\cite{Meyendorf2022} reviewed the state of AI-assisted
+NDE, identifying ultrasonic phased-array imaging and time-of-flight
+diffraction as the modalities with the most mature ML integration.
+
+Despite this accuracy progress, adversarial robustness of NDE
+classifiers has received virtually no treatment in the open literature.
+The closest structural analogue is the medical imaging domain, where
+adversarial perturbations have been shown to cause misdiagnosis of
+malignant lesions as benign — a direct analogue to the CRACK $\to$ CLEAN
+misclassification scenario in \cref{ch:adversarial}~\cite{Goodfellow2016}.
+The present thesis is, to the author's knowledge, the first to
+characterise adversarial attack success rates for an NDE weld defect
+classifier and to connect those rates quantitatively to the game-theoretic
+consequence of a missed defect through the physics-informed payoff structure.
+
+%% ------------------------------------------------------------------
+\section{The Unifying Gap}
+\label{sec:lit_gap}
+
+Three decades of structural integrity research have produced rigorous,
+standards-backed tools for computing $P_f$ from physical first principles.
+Two decades of security game research have produced deployable algorithms
+for optimal defender resource allocation.  A decade of adversarial ML
+research has characterised the fragility of neural-network inspection
+systems.  No published work combines all three into a single, coherent,
+end-to-end framework.  \Cref{tab:lit_comparison} summarises the research
+landscape and positions this thesis.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Positioning of this thesis relative to the existing literature.
+    A tick (\checkmark) indicates the capability is present;
+    a dash (---) indicates it is absent.  No prior work satisfies all
+    four requirements simultaneously.}
+  \label{tab:lit_comparison}
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    Work & Physics $\Pf$ & SSG payoff & Network & Adversarial NDE \\
+    \midrule
+    BS~7910 / API~579~\cite{BS7910:2019,API579:2021}
+      & \checkmark & --- & --- & --- \\
+    ARMOR / PROTECT~\cite{An2013,Tambe2011}
+      & --- & \checkmark & --- & --- \\
+    Brown et al.~\cite{Brown2006}
+      & --- & --- & \checkmark & --- \\
+    Munir et al.~\cite{Munir2019}
+      & --- & --- & --- & ---\textsuperscript{$a$} \\
+    Madry et al.~\cite{Madry2018}
+      & --- & --- & --- & \checkmark \\
+    \textbf{This thesis}
+      & \checkmark & \checkmark & \checkmark & \checkmark \\
+    \bottomrule
+    \multicolumn{5}{@{}l}{\textsuperscript{$a$}High accuracy achieved; adversarial robustness not assessed.}
+  \end{tabular}
+\end{table}
+
+The specific gap this thesis fills is twofold.  First, no prior security
+game formulation for pipeline infrastructure derives attacker payoffs
+from physics-based failure probability: existing models assign payoffs
+heuristically, creating exploitable information asymmetry for a
+technically sophisticated adversary.  Second, no prior work treats
+adversarial manipulation of NDE inspection outputs as a strategic
+layer within a game-theoretic resource allocation framework, despite the
+direct operational pathway from suppressed defect detection to
+undefended physical vulnerability.  Stated formally:
+
+\begin{quote}
+  \textit{The absence of a physics-grounded payoff function in Bayesian
+  Stackelberg security games for pipeline infrastructure, and the
+  consequent absence of any treatment of adversarial NDE manipulation
+  as a strategic layer within such games.}
+\end{quote}
+
+\noindent The following chapter constructs the remedy, beginning with
+the PHMSA empirical calibration that grounds all subsequent quantitative
+claims in real fleet incident data.

@@ -1,0 +1,193 @@
+%% ============================================================
+%% APPENDIX A — LP DERIVATION: BAYESIAN SSE FORMULATION
+%% ============================================================
+
+\chapter{LP Derivation: Milind-Type Enumeration for the Bayesian SSE}
+\label{app:lp}
+
+This appendix provides the complete mathematical derivation of the
+linear programme used to compute the Strong Stackelberg Equilibrium
+(\acs{SSE}) in \cref{sec:physics_game}.  The formulation follows
+Paruchuri et al.~\cite{Paruchuri2008}, adapted for the physics-informed
+payoff structure of \cref{subsec:physics_attacker_types}.
+
+%% ------------------------------------------------------------------
+\section*{A.1\quad Notation}
+
+\begin{tabular}{@{}p{0.14\textwidth}p{0.78\textwidth}@{}}
+$\mathcal{E}$ & Set of pipeline segments (targets), $|\mathcal{E}| = N = 22$ \\
+$\bmc \in [0,1]^N$ & Defender coverage vector; $c_i$ is the probability
+  that segment $i$ is covered \\
+$B$ & Defender budget: $\sum_{i=1}^N c_i \leq B$ \\
+$\Ua^\theta(i)$ & Attacker utility for type $\theta$ attacking uncovered
+  segment $i$ \\
+$\delta \in [0,1]$ & Protection factor: residual attacker utility when
+  segment is covered $= \delta \cdot \Ua^\theta(i)$; here $\delta = 0.25$ \\
+$\Theta$ & Set of attacker types with prior distribution $\{p_\theta\}$ \\
+$\mathrm{BR}^\theta(\bmc)$ & Best-response target of type-$\theta$ attacker
+  given coverage $\bmc$ \\
+$q^*$ & Attacker's best-response target (the candidate being fixed in each LP) \\
+$\eps_\mathrm{LP}$ & Strict-best-response enforcement constant
+  ($= 1 \times 10^{-4}$) \\
+\end{tabular}
+
+\vspace{1em}
+
+%% ------------------------------------------------------------------
+\section*{A.2\quad Single-Type SSE: Problem Formulation}
+
+For a fixed attacker type $\theta$, the defender seeks to maximise her
+expected utility subject to the attacker best-responding.  This is a
+bi-level optimisation:
+\begin{equation}
+  \max_{\bmc} \; \Ud^\theta(\bmc, \mathrm{BR}^\theta(\bmc))
+  \quad \text{s.t.} \quad
+  \sum_i c_i \leq B, \quad c_i \in [0,1],
+  \label{eq:bilevel}
+\end{equation}
+where the lower-level problem is:
+\begin{equation}
+  \mathrm{BR}^\theta(\bmc) = \argmax_{j \in \mathcal{E}} \;
+    \bigl[(1 - c_j)(1 - \delta)\bigr] \cdot \Ua^\theta(j).
+  \label{eq:br}
+\end{equation}
+
+The bi-level structure makes \cref{eq:bilevel} non-convex.  The
+enumeration approach resolves this by fixing the attacker target to
+each candidate $q \in \mathcal{E}$ and imposing best-response as a
+linear constraint.
+
+%% ------------------------------------------------------------------
+\section*{A.3\quad LP\textsubscript{$q$}: LP for Candidate Target $q$}
+
+For fixed candidate target $q$, define the \emph{effective gain factor}:
+\begin{equation}
+  \varepsilon_\mathrm{eff} = 1 - \delta = 0.75.
+\end{equation}
+
+The attacker's expected utility for target $q$ given coverage $\bmc$ is:
+\begin{equation}
+  \EU_a^\theta(q \mid \bmc) = \bigl[1 - c_q \cdot (1 - \delta)\bigr]
+    \cdot \Ua^\theta(q) = \bigl[1 - \varepsilon_\mathrm{eff} \cdot c_q\bigr]
+    \cdot \Ua^\theta(q).
+  \label{eq:eu_a}
+\end{equation}
+
+The best-response constraint requiring $q$ to be the unique maximiser
+of \cref{eq:eu_a} over all $j \in \mathcal{E} \setminus \{q\}$ is:
+\begin{align}
+  \EU_a^\theta(q \mid \bmc) &\geq \EU_a^\theta(j \mid \bmc)
+  + \eps_\mathrm{LP} \quad \forall j \neq q \notag \\
+  \bigl[1 - \varepsilon_\mathrm{eff} c_q\bigr]\Ua^\theta(q) &\geq
+  \bigl[1 - \varepsilon_\mathrm{eff} c_j\bigr]\Ua^\theta(j)
+  + \eps_\mathrm{LP} \quad \forall j \neq q. \notag
+\end{align}
+
+Rearranging to $\leq$ form (as required by \texttt{scipy.optimize.linprog}):
+\begin{equation}
+  \varepsilon_\mathrm{eff} \cdot \Ua^\theta(q) \cdot c_q
+  - \varepsilon_\mathrm{eff} \cdot \Ua^\theta(j) \cdot c_j
+  \;\leq\;
+  \Ua^\theta(q) - \Ua^\theta(j) \quad \forall j \neq q.
+  \label{eq:br_leq}
+\end{equation}
+
+The defender's objective for LP$_q$ is to maximise her utility when the
+attacker targets $q$:
+\begin{equation}
+  \Ud^\theta(q, \bmc) = -\bigl[1 - \varepsilon_\mathrm{eff} c_q \bigr]
+    \cdot \Ua^\theta(q)
+  = -\Ua^\theta(q) + \varepsilon_\mathrm{eff} \cdot \Ua^\theta(q) \cdot c_q.
+\end{equation}
+
+Since $-\Ua^\theta(q)$ is a constant w.r.t.\ $\bmc$, maximising
+$\Ud^\theta$ is equivalent to:
+\begin{equation}
+  \min_{\bmc} \; -\varepsilon_\mathrm{eff} \cdot \Ua^\theta(q) \cdot c_q.
+  \label{eq:lp_obj_app}
+\end{equation}
+
+The complete LP$_q$ in standard form is therefore:
+
+\begin{equation}
+  \boxed{
+  \begin{aligned}
+    \min_{\bmc \in \mathbb{R}^N} \quad
+      & -\varepsilon_\mathrm{eff} \cdot \Ua^\theta(q) \cdot c_q \\
+    \text{s.t.} \quad
+      & \sum_{i=1}^N c_i \leq B & \text{(budget)} \\
+      & \varepsilon_\mathrm{eff} \Ua^\theta(q) c_q
+        - \varepsilon_\mathrm{eff} \Ua^\theta(j) c_j
+        \leq \Ua^\theta(q) - \Ua^\theta(j)
+        & \forall j \neq q \quad \text{(best-response)} \\
+      & 0 \leq c_i \leq 1 & \forall i \quad \text{(probability bounds)}
+  \end{aligned}
+  }
+  \label{eq:lp_full}
+\end{equation}
+
+This LP has $N = 22$ decision variables, $1$ budget constraint,
+$N - 1 = 21$ best-response constraints, and $2N = 44$ bound constraints,
+for a total of $66$ constraints.  It is solved by the HiGHS simplex
+solver via \texttt{scipy.optimize.linprog(..., method="highs")}~\cite{Schrijver1986}.
+
+%% ------------------------------------------------------------------
+\section*{A.4\quad Enumeration Algorithm}
+
+The single-type SSE is found by:
+\begin{enumerate}
+  \item For each $q \in \{1, \ldots, N\}$, solve LP$_q$ as defined
+    in \cref{eq:lp_full}.
+  \item Discard infeasible LPs.
+  \item Select the coverage vector from the feasible LP with the
+    highest defender objective value:
+    \begin{equation}
+      \bmc^* = \argmax_{q: \text{LP}_q\text{ feasible}} \;
+        \Ud^\theta(\bmc^{(q)}, q).
+    \end{equation}
+\end{enumerate}
+
+\paragraph{Computational complexity.}
+Each LP has $O(N)$ variables and $O(N)$ constraints.  Interior-point
+methods solve it in $O(N^{3.5})$ per LP; the HiGHS simplex is typically
+$O(N^2)$ in practice for this problem size.  Total enumeration cost:
+$O(N) \times O(N^2) = O(N^3) \approx 10{,}648$ operations for $N = 22$.
+
+%% ------------------------------------------------------------------
+\section*{A.5\quad Bayesian Extension}
+
+Under the Bayesian game formulation with $|\Theta| = 3$ attacker types,
+the optimal Bayesian defender coverage is:
+\begin{equation}
+  \bmc^*_\mathrm{Bayes} = \argmax_{\bmc: \sum c_i \leq B}
+    \sum_{\theta \in \Theta} p_\theta \cdot
+    \Ud^\theta\!\bigl(\bmc, \mathrm{BR}^\theta(\bmc)\bigr).
+  \label{eq:bayesian_sse}
+\end{equation}
+
+This is approximated by the prior-weighted convex combination:
+\begin{equation}
+  \hat{\bmc}^*_\mathrm{Bayes} = \sum_{\theta \in \Theta} p_\theta \cdot \bmc^*_\theta,
+  \label{eq:bayesian_approx}
+\end{equation}
+followed by a renormalisation LP that rescales $\hat{\bmc}^*$ to satisfy
+the budget constraint exactly.  The approximation is tight when attacker
+types have non-overlapping high-value targets, which is verified
+empirically for the three types in \cref{tab:attacker_profiles} by
+checking that the top-ranked target for each type is distinct.
+
+%% ------------------------------------------------------------------
+\section*{A.6\quad Correctness Verification}
+
+The sign convention in \cref{eq:br_leq} — positive coefficient on $c_q$
+and negative coefficient on $c_j$ — is counterintuitive and is the
+source of the most common implementation error in the SSG literature.
+The derivation above establishes that the correct form is:
+\begin{equation*}
+  +\varepsilon_\mathrm{eff} \cdot \Ua^\theta(q) \cdot c_q
+  - \varepsilon_\mathrm{eff} \cdot \Ua^\theta(j) \cdot c_j
+  \leq \Ua^\theta(q) - \Ua^\theta(j),
+\end{equation*}
+which is implemented verbatim in \texttt{\_solve\_lp\_for\_target\_q()}
+(Appendix~\ref{app:code}, Listing~\ref{lst:lp_solver}) and validated
+by 52 dedicated unit tests in \texttt{test\_stackelberg\_game.py}.

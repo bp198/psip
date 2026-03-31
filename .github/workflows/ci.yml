@@ -1,0 +1,159 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# PSIP — Continuous Integration
+#
+# Runs on every push and every pull request to main.
+# Three jobs run in parallel:
+#
+#   test   — pytest 310 tests, uploads coverage report
+#   lint   — ruff code-style check
+#   api    — spins up the FastAPI app and hits /api/health
+#
+# A green badge on the README means all three passed.
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: CI
+
+on:
+  push:
+    branches: [ "main", "master", "develop" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+# Cancel any in-progress run for the same branch when a new push arrives
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  # ── Job 1: Full test suite (310 tests) ──────────────────────────────────────
+  test:
+    name: Tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          # Install FastAPI stack (not in core deps for older pip resolvers)
+          pip install fastapi "uvicorn[standard]" httpx pydantic>=2.0
+
+      - name: Run test suite
+        run: |
+          pytest tests/ \
+            --tb=short \
+            --cov=src \
+            --cov=psip \
+            --cov-report=term-missing \
+            --cov-report=xml:coverage.xml \
+            -q
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+
+      - name: Upload coverage report
+        # Only upload from the primary Python version to avoid duplicate reports
+        if: matrix.python-version == '3.10'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+          retention-days: 30
+
+  # ── Job 2: Linting ───────────────────────────────────────────────────────────
+  lint:
+    name: Lint (ruff)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "pip"
+
+      - name: Install ruff
+        run: pip install ruff>=0.1
+
+      - name: Run ruff
+        run: |
+          ruff check src/ psip/ --output-format=github
+        # Note: ruff is configured in pyproject.toml [tool.ruff]
+        # Current settings: line-length=100, select E/F/I/W
+
+  # ── Job 3: API smoke test ────────────────────────────────────────────────────
+  api-health:
+    name: API health check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          pip install fastapi "uvicorn[standard]" httpx pydantic>=2.0
+
+      - name: Start API server in background
+        run: |
+          uvicorn psip.api:app --host 0.0.0.0 --port 8000 &
+          # Give uvicorn 5 seconds to bind and initialise
+          sleep 5
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+
+      - name: Hit /api/health
+        run: |
+          curl --fail --silent --show-error \
+            http://localhost:8000/api/health | python -c "
+          import sys, json
+          body = json.load(sys.stdin)
+          assert body['status'] == 'ok', f'Bad status: {body}'
+          assert body['version'] == '0.1.0', f'Bad version: {body}'
+          assert len(body['engines']) == 5, f'Wrong engine count: {body}'
+          print('Health check passed:', body)
+          "
+
+      - name: Hit /api/fad/assess (engine smoke test)
+        run: |
+          curl --fail --silent --show-error \
+            -X POST http://localhost:8000/api/fad/assess \
+            -H "Content-Type: application/json" \
+            -d '{
+              "sigma_y": 448.0, "sigma_u": 531.0, "K_mat": 120.0,
+              "outer_diameter": 914.0, "wall_thickness": 14.3,
+              "pressure": 7.5, "flaw_depth": 3.0, "flaw_length": 20.0,
+              "weld_type": "butt", "fat_class": 71, "scf": 1.5
+            }' | python -c "
+          import sys, json
+          body = json.load(sys.stdin)
+          assert 'Kr' in body and 'Lr' in body, f'Missing fields: {body}'
+          assert isinstance(body['is_acceptable'], bool), 'is_acceptable must be bool'
+          print('FAD engine smoke test passed: Kr=%.4f Lr=%.4f acceptable=%s'
+                % (body['Kr'], body['Lr'], body['is_acceptable']))
+          "

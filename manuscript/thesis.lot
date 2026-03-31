@@ -1,0 +1,19 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {2.1}{\ignorespaces Positioning of this thesis relative to the existing literature. A tick (\text {$\mathsurround \z@ \mathchar "658$}) indicates the capability is present; a dash (---) indicates it is absent. No prior work satisfies all four requirements simultaneously.\relax }}{13}{table.caption.28}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {3.1}{\ignorespaces Calibrated Stress Concentration Factors by Seam Type (PHMSA-informed, BS\nobreakspace {}7910:2019 reference values in parentheses). All values are mean $\pm $ one standard deviation.\relax }}{15}{table.caption.30}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces Attacker type profiles used in the Bayesian SSE. Weight parameters $w_{P_{\mathrm {f}}}$, $w_v$, $w_b$ define how each type computes its target utility (Equation\nobreakspace {}\ref {eq:attacker_utility}).\relax }}{20}{table.caption.36}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces Adversarial attack results at $\varepsilon = 0.30$ ($K = 20$ steps for BIM and PGD). \acs {ASR} = attack success rate (proportion of correct clean predictions that are misclassified under the adversarial example). All values validated against the 310-test suite.\relax }}{25}{table.caption.39}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {5.1}{\ignorespaces Scenario comparison: total expected network loss under three defender strategies. All values computed on the 22-segment Gulf Coast network with $\delta = 0.25$ and $B = 6.6$.\relax }}{29}{table.caption.43}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {B.1}{\ignorespaces API\nobreakspace {}5L pipeline steel grade properties used in the BS\nobreakspace {}7910 FAD engine. $\sigma _y$ = specified minimum yield strength (SMYS); $\sigma _u$ = specified minimum tensile strength (SMTS); $E$ = Young's modulus; $L_{r,\qopname \relax m{max}}$ = BS\nobreakspace {}7910 FAD cut-off. All stresses in \ensuremath {\mathrm {MPa}}.\relax }}{43}{table.caption.57}%
+\contentsline {table}{\numberline {B.2}{\ignorespaces Lognormal fracture toughness parameters used in the Monte Carlo engine. $\mu _{K_\mathrm {mat}}$ and $\sigma _{K_\mathrm {mat}}$ are the lognormal mean and coefficient of variation respectively. Values are PHMSA-calibrated for Gulf Coast transmission fleet (\cref {subsec:physics_calibration}).\relax }}{44}{table.caption.58}%
+\contentsline {table}{\numberline {B.3}{\ignorespaces PHMSA-calibrated SCF distributions by pipeline seam type, with mean failure probabilities from the Monte Carlo engine (10\,000 simulations per segment, seed = 42). Fleet-average SCF used for epsilon normalisation in \cref {eq:eps_scaling}: 1.50.\relax }}{44}{table.caption.59}%
+\contentsline {table}{\numberline {B.4}{\ignorespaces IIW fatigue class assignments for pipeline weld configurations relevant to this thesis. $\Delta \sigma _C$ = characteristic fatigue strength at $2\times 10^6$ cycles; $m_1 / m_2$ = S-N curve slope below/above $10^7$ cycles. Values from IIW\nobreakspace {}Doc.\nobreakspace {}XIII-2460r2-13\nobreakspace {}\cite {IIW_Fatigue:2016}.\relax }}{45}{table.caption.60}%
+\contentsline {table}{\numberline {B.5}{\ignorespaces Physical properties of the 22-segment synthetic Gulf Coast network (seed = 42). $P_f$ values are from the 5\,000-trial Monte Carlo engine. $c_i^*$ is the Bayesian SSE coverage probability at $B = 6.6$. All diameters in mm.\relax }}{46}{table.caption.61}%
+\addvspace {10\p@ }

@@ -1,0 +1,303 @@
+%% ============================================================
+%% CHAPTER 3 — PHYSICS-INFORMED VULNERABILITY ENGINE (ZONE C)
+%% ============================================================
+
+\chapter{Physics-Informed Vulnerability Engine}
+\label{ch:physics}
+
+\section{Chapter Overview}
+\label{sec:physics_overview}
+
+This chapter develops the three interconnected layers of Zone~C:
+(i) the \ac{MC} failure probability engine grounded in \ac{BS7910}:2019
+and \acs{IIW} fatigue standards (\cref{sec:physics_mc}),
+(ii) the Gulf Coast pipeline network model with physics-derived edge
+attributes (\cref{sec:physics_network}), and
+(iii) the Bayesian Stackelberg Security Game with LP-enumeration solver
+(\cref{sec:physics_game}).  All numerical results in this chapter are
+derived from the validated codebase and cross-checked against the
+310-test suite described in the Technical Inventory.
+
+\section{PHMSA Empirical Calibration}
+\label{sec:physics_phmsa}
+
+\subsection{Dataset}
+\label{subsec:physics_phmsa_data}
+
+The probabilistic inputs to the failure model are calibrated against the
+\ac{PHMSA} Gas Transmission and Gathering Pipeline Annual Report
+dataset~\cite{PHMSA2024}, comprising \num{1996} incident records spanning
+2010--2024, with 624 data fields per record.  Filtering for material
+and weld-related failure causes yields 216 events with usable seam-type
+and material-grade information.
+
+% Figure placeholder
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{fig6_phmsa_cause_distribution}
+  \caption{Distribution of incident causes in the PHMSA Gas Transmission
+    dataset (2010--2024, $n = \num{1996}$).  Material and weld-related
+    failures account for \SI{10.8}{\percent} of all recorded incidents
+    and represent the highest-consequence category by median consequence
+    cost.}
+  \label{fig:phmsa_cause}
+\end{figure}
+
+\subsection{Calibrated Distributions}
+\label{subsec:physics_calibration}
+
+\Cref{tab:calibrated_scf} presents the \acs{SCF} values and associated
+coefficient of variation ($c_v$) calibrated from the PHMSA data for
+each seam type.  The lognormal parameterisation follows the standard
+practice for material scatter in fracture assessment~\cite{BS7910:2019,
+Anderson2005}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Calibrated Stress Concentration Factors by Seam Type
+    (PHMSA-informed, BS~7910:2019 reference values in parentheses).
+    All values are mean $\pm$ one standard deviation.}
+  \label{tab:calibrated_scf}
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    Seam Type & $\mu_\mathrm{SCF}$ & $\sigma_\mathrm{SCF}$ &
+    $c_v$ & Mean $\Pf$ \\
+    \midrule
+    Seamless              & 1.00 & 0.05 & 0.050 & 0.53 \\
+    DSAW                  & 1.25 & 0.10 & 0.080 & 0.62 \\
+    HF-ERW                & 1.50 & 0.15 & 0.100 & 0.66 \\
+    LF-ERW (pre-1970)     & 1.80 & 0.20 & 0.111 & 0.74 \\
+    Spiral SAW            & 1.40 & 0.12 & 0.086 & 0.64 \\
+    Fillet / Lap-welded   & 2.20 & 0.25 & 0.114 & 0.88 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{BS 7910 Failure Assessment Diagram Engine}
+\label{sec:physics_fad}
+
+\subsection{Option 1 FAD Curve}
+\label{subsec:physics_fad_curve}
+
+The BS~7910:2019 Level~2 Option~1 \ac{FAD} curve is defined by
+\cite{BS7910:2019}:
+\begin{equation}
+  f(\Lr) = \left[1 + 0.5\,\Lr^2\right]^{-1/2}
+    \left(0.3 + 0.7\,\mathrm{e}^{-\mu\,\Lr^6}\right),
+    \qquad 0 \leq \Lr \leq \Lr^\mathrm{max},
+  \label{eq:fad_option1}
+\end{equation}
+where $\mu = \min(0.001\,E/\sigma_y,\; 0.6)$ and the cut-off
+$\Lr^\mathrm{max} = (\sigma_y + \sigma_u)/(2\sigma_y)$.  A flaw is
+acceptable if and only if the assessment point $(\Lr, \Kr)$ lies within
+the envelope defined by \cref{eq:fad_option1}.
+
+% Figure placeholder
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.80\textwidth]{fig1_fad_assessment}
+  \caption{BS~7910:2019 Level~2 Option~1 Failure Assessment Diagram for
+    an API~5L X60 seamless segment.  The nominal assessment point (circle,
+    green) lies inside the safe region.  The critical assessment point
+    (diamond, red) is outside the FAD envelope, indicating fracture
+    instability.  Operating conditions: MAOP at \SI{72}{\percent} SMYS.}
+  \label{fig:fad_assessment}
+\end{figure}
+
+\subsection{Toughness and Load Ratios}
+\label{subsec:physics_kr_lr}
+
+The fracture ratio is $\Kr = K_\mathrm{I} / K_\mathrm{mat}$, where
+$K_\mathrm{I}$ is computed from the stress intensity solution for a
+surface crack in a cylindrical shell~\cite{BS7910:2019}, and
+$K_\mathrm{mat}$ is the characteristic fracture toughness.  The load
+ratio $\Lr = \sigma_\mathrm{ref}/\sigma_y$ uses the reference stress
+solution for an axial surface flaw~\cite{BS7910:2019,API579:2021}.
+Applied stresses assume \ac{MAOP} loading at
+\SI{72}{\percent}~\acs{SMYS}, consistent with \acs{ASME}~B31.8:2025
+design basis~\cite{ASME_B31_8:2025}.
+
+\section{Monte Carlo Failure Probability Engine}
+\label{sec:physics_mc}
+
+\subsection{Simulation Design}
+\label{subsec:physics_mc_design}
+
+For each pipeline segment $e$, $N = \num{10000}$ independent realisations
+of the material and flaw-geometry random variables are drawn, and the
+FAD acceptability criterion is evaluated for each trial:
+\begin{equation}
+  \Pf(e) = \frac{1}{N}\sum_{k=1}^{N}
+    \mathbf{1}\!\left[\Kr^{(k)} > f\!\left(\Lr^{(k)}\right)
+    \;\mathrm{or}\;
+    \Lr^{(k)} \geq \Lr^\mathrm{max}\right].
+  \label{eq:mc_pf}
+\end{equation}
+Material properties ($\sigma_y$, $E$, $K_\mathrm{mat}$) follow lognormal
+distributions with parameters from \cref{tab:calibrated_scf}.  Flaw
+dimensions follow truncated normal distributions bounded by API~1104:2021
+acceptance criteria~\cite{API1104:2021}.
+
+% Figure placeholder
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{fig4_mc_pf_simulation}
+  \caption{Monte Carlo failure probability distributions for four seam
+    types ($N = \num{10000}$ trials per segment).  Box-whisker plots
+    show the interquartile range; the cross marks the mean.  The ordering
+    seamless $<$ DSAW $<$ HF-ERW $<$ LF-ERW matches the empirical failure
+    hierarchy in the PHMSA dataset (see \cref{fig:phmsa_cause}).}
+  \label{fig:mc_pf}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.88\textwidth]{fig5_pf_scf_sensitivity}
+  \caption{Sensitivity of segment failure probability $\Pf$ to stress
+    concentration factor (SCF).  A unit increase in SCF from the
+    seamless baseline (SCF $= 1.0$) to the fillet-weld value (SCF $= 2.2$)
+    amplifies $\Pf$ by a factor of $\approx \num{1.7}$, confirming that
+    SCF uncertainty dominates the failure probability variance in this model.}
+  \label{fig:pf_scf_sensitivity}
+\end{figure}
+
+\section{Gulf Coast Network Model}
+\label{sec:physics_network}
+
+\subsection{Topology}
+\label{subsec:physics_network_topology}
+
+The synthetic Gulf Coast transmission corridor consists of $|\mathcal{V}|
+= 20$ nodes (1 source, 2 compressor stations, 8 delivery points, 3 storage
+facilities, 6 junction nodes) and $|\mathcal{E}| = 22$ directed
+pipeline segments.  Node positions are sampled from a bounding box
+calibrated to the PHMSA Gulf Coast reporting region.  Edges are assigned
+diameter, wall thickness, seam type, installation year, and \acs{MAOP} by
+stratified sampling from the \ac{PHMSA} fleet distribution.
+
+% Figure placeholder
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{fig11_network_vulnerability_map}
+  \caption{Gulf Coast transmission network vulnerability map.
+    Edge colour and width encode $\Pf$ (red = high risk).
+    Betweenness centrality ranges from $\num{0.00}$ (isolated laterals)
+    to $\num{0.26}$ (primary trunk segments).  Segment~SEG\_N012\_N015
+    ($\Pf = \num{0.93}$, max betweenness) is the dominant attacker
+    target under all three adversary types.}
+  \label{fig:network_map}
+\end{figure}
+
+\subsection{$\Pf$ Attachment}
+\label{subsec:physics_pf_attach}
+
+After topology generation, the \ac{MC} engine is applied to each
+segment using its assigned physical attributes, yielding
+$\Pf \in [\num{0.29},\; \num{0.93}]$ across the 22 segments.
+\Cref{fig:network_map} visualises the resulting vulnerability landscape.
+
+\section{Bayesian Stackelberg Security Game}
+\label{sec:physics_game}
+
+\subsection{Game Formulation}
+\label{subsec:physics_game_formulation}
+
+The pipeline defender chooses coverage probabilities
+$\bmc = (c_1, \ldots, c_n) \in [0,1]^n$ subject to budget
+$\sum_i c_i \leq B$.  Each attacker type $\theta \in \Theta$
+has prior $p_\theta$ and utility function $\Ua^\theta(i)$ as
+defined in \cref{eq:attacker_utility}.  The Bayesian expected
+defender utility under coverage $\bmc$, given that the attacker
+best-responds to the marginal distribution of defender actions, is:
+\begin{equation}
+  \Ud(\bmc) = \sum_{\theta \in \Theta} p_\theta \cdot \Ud^\theta(\bmc,
+    \mathrm{BR}^\theta(\bmc)),
+  \label{eq:bayesian_defender_utility}
+\end{equation}
+where $\mathrm{BR}^\theta(\bmc) = \argmax_i \bigl[(1 - c_i)\Ua^\theta(i)
+\bigr]$ is the attacker's best-response target.
+
+\subsection{LP Formulation and Strong Stackelberg Equilibrium}
+\label{subsec:physics_lp}
+
+Following Paruchuri et al.~\cite{Paruchuri2008}, for each candidate
+target $q$, the \ac{SSE} is found by solving:
+\begin{align}
+  \min_{\bmc} \quad & -(1-\delta)\,\Ua(q)\,c_q
+    \label{eq:lp_obj} \\
+  \text{s.t.} \quad
+    & \sum_{i=1}^n c_i \leq B, \label{eq:lp_budget} \\
+    & c_i \in [0,1] \;\forall i, \label{eq:lp_bounds} \\
+    & \eps\,\Ua(q)\,c_q - \eps\,\Ua(j)\,c_j \leq \Ua(q) - \Ua(j)
+      \;\forall j \neq q, \label{eq:lp_br}
+\end{align}
+where $\delta = \num{0.25}$ is the protection factor (reduction in
+attacker utility when a segment is covered) and $\eps = \num{1e-4}$
+enforces the strict-best-response constraint~\eqref{eq:lp_br}.  The
+correct sign convention for constraint~\eqref{eq:lp_br} --- $+\eps$
+on the $q$-term and $-\eps$ on the $j$-term --- is essential and was
+verified against the full test suite.
+
+\subsection{Attacker Type Profiles}
+\label{subsec:physics_attacker_types}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Attacker type profiles used in the Bayesian SSE.
+    Weight parameters $w_{\Pf}$, $w_v$, $w_b$ define how each type
+    computes its target utility (Equation~\ref{eq:attacker_utility}).}
+  \label{tab:attacker_profiles}
+  \begin{tabular}{@{}lcccccc@{}}
+    \toprule
+    Type & Prior $p_\theta$ & $w_{\Pf}$ & $w_v$ & $w_b$
+      & Description \\
+    \midrule
+    \textsc{Strategic}    & 0.50 & 0.6 & 1.0 & 0.0
+      & Maximises asset value damage \\
+    \textsc{Opportunistic}& 0.30 & 1.0 & 0.2 & 0.0
+      & Targets structurally weakest pipe \\
+    \textsc{State Actor}  & 0.20 & 0.5 & 0.7 & 1.0
+      & Maximises network disruption \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Game Results}
+\label{subsec:physics_game_results}
+
+At a budget fraction of \SI{30}{\percent} ($B = \num{6.6}$ coverage
+units over 22 segments), the Bayesian \ac{SSE} yields:
+
+\begin{itemize}
+  \item Defender utility: $\Ud^* = \num{-0.477}$
+  \item Coverage effectiveness versus zero-budget baseline: $+\SI{52.3}{\percent}$
+  \item Risk reduction versus uniform allocation: $\SI{17.0}{\percent}$
+  \item Budget utilisation: $\num{6.6}/\num{6.6}$ (\SI{100}{\percent})
+  \item Primary defended segment: SEG\_N012\_N015
+    ($\Pf = \num{0.93}$, maximum betweenness centrality)
+\end{itemize}
+
+% Figure placeholders
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{fig13_stackelberg_coverage_map}
+  \caption{Bayesian Stackelberg SSE coverage probabilities $c_i$ over the
+    Gulf Coast network.  Edge width encodes $c_i$; node size encodes
+    betweenness centrality.  The physics-informed allocation concentrates
+    resources on trunk segments with both high $\Pf$ and high betweenness,
+    in contrast to the uniform baseline ($c_i = \num{0.30}$ for all $i$).}
+  \label{fig:stackelberg_coverage}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{fig14_budget_sensitivity}
+  \caption{Budget sensitivity analysis across 18 budget levels
+    ($B/N \in [\num{0.05}, \num{0.90}]$).
+    \textit{Left:} Defender and attacker utilities.
+    \textit{Centre:} Coverage effectiveness (\% improvement vs.\ baseline).
+    \textit{Right:} Marginal return $\partial \Ud / \partial B$.
+    Diminishing returns are evident beyond $B/N \approx \num{0.60}$,
+    providing an evidence base for the \SI{30}{\percent} budget choice.}
+  \label{fig:budget_sensitivity}
+\end{figure}

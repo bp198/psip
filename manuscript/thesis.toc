@@ -1,0 +1,90 @@
+\contentsline {chapter}{Declaration of Originality}{i}{chapter*.1}%
+\contentsline {chapter}{Abstract}{ii}{chapter*.2}%
+\contentsline {chapter}{Acknowledgements}{iv}{chapter*.13}%
+\contentsline {chapter}{List of Abbreviations}{v}{chapter*.14}%
+\contentsline {chapter}{List of Figures}{xi}{chapter*.14}%
+\contentsline {chapter}{List of Tables}{xiii}{chapter*.14}%
+\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Motivation and Strategic Context}{1}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Problem Statement}{2}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Thesis Contributions}{3}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Thesis Scope and Limitations}{3}{section.1.4}%
+\contentsline {section}{\numberline {1.5}Regulatory Framework}{4}{section.1.5}%
+\contentsline {section}{\numberline {1.6}Thesis Structure}{4}{section.1.6}%
+\contentsline {chapter}{\numberline {2}Literature Review}{6}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Overview}{6}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Pipeline Structural Integrity and Failure Assessment}{6}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Fracture Mechanics and Fitness-for-Service}{6}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Fatigue Design of Welded Joints}{8}{subsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.3}Monte Carlo Methods in Reliability Assessment}{8}{subsection.2.2.3}%
+\contentsline {section}{\numberline {2.3}Security Games for Critical Infrastructure}{9}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Stackelberg Security Games: Foundations}{9}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Deployed Systems}{10}{subsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.3.3}Critical Infrastructure and Network Attacks}{11}{subsection.2.3.3}%
+\contentsline {section}{\numberline {2.4}Adversarial Machine Learning and NDE Security}{11}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Adversarial Attacks on Neural Networks}{11}{subsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.4.2}Machine Learning for NDE}{12}{subsection.2.4.2}%
+\contentsline {section}{\numberline {2.5}The Unifying Gap}{12}{section.2.5}%
+\contentsline {chapter}{\numberline {3}Physics-Informed Vulnerability Engine}{14}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Chapter Overview}{14}{section.3.1}%
+\contentsline {section}{\numberline {3.2}PHMSA Empirical Calibration}{14}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Dataset}{14}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Calibrated Distributions}{14}{subsection.3.2.2}%
+\contentsline {section}{\numberline {3.3}BS 7910 Failure Assessment Diagram Engine}{14}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Option 1 FAD Curve}{16}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Toughness and Load Ratios}{16}{subsection.3.3.2}%
+\contentsline {section}{\numberline {3.4}Monte Carlo Failure Probability Engine}{16}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Simulation Design}{17}{subsection.3.4.1}%
+\contentsline {section}{\numberline {3.5}Gulf Coast Network Model}{17}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Topology}{17}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}$P_{\mathrm {f}}$ Attachment}{18}{subsection.3.5.2}%
+\contentsline {section}{\numberline {3.6}Bayesian Stackelberg Security Game}{18}{section.3.6}%
+\contentsline {subsection}{\numberline {3.6.1}Game Formulation}{18}{subsection.3.6.1}%
+\contentsline {subsection}{\numberline {3.6.2}LP Formulation and Strong Stackelberg Equilibrium}{19}{subsection.3.6.2}%
+\contentsline {subsection}{\numberline {3.6.3}Attacker Type Profiles}{19}{subsection.3.6.3}%
+\contentsline {subsection}{\numberline {3.6.4}Game Results}{19}{subsection.3.6.4}%
+\contentsline {chapter}{\numberline {4}Adversarial Robustness of NDE Classifiers}{22}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Chapter Overview}{22}{section.4.1}%
+\contentsline {section}{\numberline {4.2}The Adversarial NDE Threat}{22}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Synthetic NDE Feature Dataset}{22}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Feature Engineering}{23}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Dataset Generation}{23}{subsection.4.3.2}%
+\contentsline {section}{\numberline {4.4}WeldDefectMLP Architecture}{23}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}Architecture}{23}{subsection.4.4.1}%
+\contentsline {subsection}{\numberline {4.4.2}Training Procedure}{23}{subsection.4.4.2}%
+\contentsline {section}{\numberline {4.5}Adversarial Attacks}{24}{section.4.5}%
+\contentsline {subsection}{\numberline {4.5.1}Fast Gradient Sign Method (FGSM)}{24}{subsection.4.5.1}%
+\contentsline {subsection}{\numberline {4.5.2}Basic Iterative Method (BIM)}{24}{subsection.4.5.2}%
+\contentsline {subsection}{\numberline {4.5.3}Projected Gradient Descent (PGD)}{24}{subsection.4.5.3}%
+\contentsline {subsection}{\numberline {4.5.4}Physics-Informed Epsilon Scaling}{24}{subsection.4.5.4}%
+\contentsline {section}{\numberline {4.6}Results}{24}{section.4.6}%
+\contentsline {subsection}{\numberline {4.6.1}Classification Performance}{25}{subsection.4.6.1}%
+\contentsline {subsection}{\numberline {4.6.2}Attack Success Rates}{25}{subsection.4.6.2}%
+\contentsline {subsection}{\numberline {4.6.3}The BIM–PGD Gap: Interpretation}{25}{subsection.4.6.3}%
+\contentsline {chapter}{\numberline {5}Results and Integrated Analysis}{27}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Chapter Overview}{27}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Network Vulnerability Landscape}{27}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Benefit of Physics-Informed Stackelberg Allocation}{27}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Scenario Definitions}{27}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}Total Expected Network Loss}{29}{subsection.5.3.2}%
+\contentsline {section}{\numberline {5.4}Adversarial NDE and the Game-Theoretic Attacker}{29}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Interactive Dashboard}{31}{section.5.5}%
+\contentsline {section}{\numberline {5.6}Discussion}{31}{section.5.6}%
+\contentsline {paragraph}{Research Question 1}{31}{paragraph*.47}%
+\contentsline {paragraph}{Research Question 2}{32}{paragraph*.48}%
+\contentsline {paragraph}{Research Question 3}{32}{paragraph*.49}%
+\contentsline {chapter}{\numberline {6}Conclusion and Future Work}{33}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Summary of Contributions}{33}{section.6.1}%
+\contentsline {paragraph}{Contribution 1 — Physics-Informed Payoff Engine.}{33}{paragraph*.50}%
+\contentsline {paragraph}{Contribution 2 — Bayesian Stackelberg SSE.}{33}{paragraph*.51}%
+\contentsline {paragraph}{Contribution 3 — Adversarial NDE Threat Model.}{33}{paragraph*.52}%
+\contentsline {paragraph}{Contribution 4 — Integrated Dashboard.}{34}{paragraph*.53}%
+\contentsline {section}{\numberline {6.2}Implications for Mediterranean Pipeline Security}{34}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Limitations}{34}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Directions for Future Research}{34}{section.6.4}%
+\contentsline {section}{\numberline {6.5}Closing Remarks}{35}{section.6.5}%
+\contentsline {chapter}{Bibliography}{36}{section*.54}%
+\contentsline {chapter}{\numberline {A}LP Derivation: Milind-Type Enumeration for the Bayesian SSE}{39}{appendix.A}%
+\contentsline {paragraph}{Computational complexity.}{41}{paragraph*.56}%
+\contentsline {chapter}{\numberline {B}FAD Reference Tables: Material Constants and SCF Lookup}{43}{appendix.B}%
+\contentsline {chapter}{\numberline {C}Code Listings: Core Algorithm Implementations}{47}{appendix.C}%

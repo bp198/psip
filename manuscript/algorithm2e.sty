@@ -1,0 +1,16 @@
+%% algorithm2e.sty — compatibility shim (STRATEGOS thesis)
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{algorithm2e}[2024/01/01 algorithm2e shim]
+\DeclareOption{ruled}{}\DeclareOption{linesnumbered}{}\DeclareOption{vlined}{}
+\DeclareOption*{}\ProcessOptions\relax
+\RequirePackage{float}
+\newfloat{algorithm}{htbp}{loa}
+\floatname{algorithm}{Algorithm}
+%% Swallow \SetKwComment{name}{before}{after}
+\newcommand{\SetKwComment}[3]{}
+%% Other common algorithm2e keywords
+\newcommand{\KwIn}[1]{\textbf{Input:}~#1\par}
+\newcommand{\KwOut}[1]{\textbf{Output:}~#1\par}
+\newcommand{\KwData}[1]{\textbf{Data:}~#1\par}
+\newcommand{\KwResult}[1]{\textbf{Result:}~#1\par}
+\newenvironment{algorithm2e}[1][]{\begin{algorithm}}{\end{algorithm}}

@@ -1,0 +1,38 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# PSIP — docker-compose.dev.yml
+#
+# Development overrides: live source mounting + hot-reload.
+#
+# Usage:
+#   docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+#
+# Changes to psip/ or src/ on your host are reflected immediately
+# without rebuilding the image.
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  api:
+    # In dev, build from the builder stage (includes gcc for re-installs)
+    build:
+      target: builder
+    environment:
+      - PSIP_ENV=development
+      - PSIP_LOG_LEVEL=debug
+    volumes:
+      # Mount source directories so edits take effect without rebuilding
+      - ./src:/app/src
+      - ./psip:/app/psip
+      - ./main.py:/app/main.py
+      - ./data:/app/data
+    # Override command: enable hot-reload
+    command: >
+      uvicorn psip.api:app
+        --host 0.0.0.0
+        --port 8000
+        --reload
+        --reload-dir /app/psip
+        --log-level debug
+    # Expose extra port for debugger (optional)
+    ports:
+      - "8000:8000"
+      - "5678:5678"

@@ -1,0 +1,190 @@
+%% ============================================================
+%% APPENDIX B — FAD REFERENCE TABLES
+%% ============================================================
+
+\chapter{FAD Reference Tables: Material Constants and SCF Lookup}
+\label{app:fad_tables}
+
+This appendix provides the reference tables used by the
+\texttt{fad\_engine.py} and \texttt{calibrated\_params.py} modules.
+All values are sourced from BS~7910:2019~\cite{BS7910:2019},
+API~5L (46th edition), and the PHMSA calibration described in
+\cref{sec:physics_phmsa}.  These tables constitute the
+\emph{numerical single source of truth} for all FAD assessments
+in this thesis.
+
+%% ------------------------------------------------------------------
+\section*{B.1\quad API~5L Steel Grade Material Constants}
+
+\begin{table}[htbp]
+  \centering
+  \caption{API~5L pipeline steel grade properties used in the
+    BS~7910 FAD engine.  $\sigma_y$ = specified minimum yield
+    strength (SMYS); $\sigma_u$ = specified minimum tensile strength
+    (SMTS); $E$ = Young's modulus; $L_{r,\max}$ = BS~7910 FAD cut-off.
+    All stresses in \si{\mega\pascal}.}
+  \label{tab:api5l_grades}
+  \begin{tabular}{@{}lrrrrc@{}}
+    \toprule
+    Grade & $\sigma_y$ & $\sigma_u$ & $E$ & $L_{r,\max}$ & Typical use \\
+    \midrule
+    X52 & 359 & 455 & 207\,000 & 1.13 & Pre-1970 distribution lines \\
+    X60 & 414 & 517 & 207\,000 & 1.15 & Gulf Coast transmission (primary) \\
+    X65 & 448 & 531 & 207\,000 & 1.12 & Post-1980 HF-ERW \\
+    X70 & 483 & 565 & 207\,000 & 1.09 & Modern DSAW trunk lines \\
+    X80 & 552 & 621 & 207\,000 & 1.06 & High-pressure deep offshore \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\noindent\textbf{Note on $L_{r,\max}$ calculation.}
+Per BS~7910:2019 Clause~7.1.4:
+\begin{equation}
+  L_{r,\max} = \frac{\sigma_y + \sigma_u}{2\,\sigma_y}.
+\end{equation}
+For X60: $(414 + 517)/(2 \times 414) = 931/828 = 1.125 \approx 1.15$.
+For X65: $(448 + 531)/(2 \times 448) = 979/896 = 1.093 \approx 1.12$.
+Values are rounded to two decimal places consistent with the standard.
+
+%% ------------------------------------------------------------------
+\section*{B.2\quad Fracture Toughness Parameters}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Lognormal fracture toughness parameters used in the Monte
+    Carlo engine.  $\mu_{K_\mathrm{mat}}$ and $\sigma_{K_\mathrm{mat}}$
+    are the lognormal mean and coefficient of variation respectively.
+    Values are PHMSA-calibrated for Gulf Coast transmission fleet
+    (\cref{subsec:physics_calibration}).}
+  \label{tab:toughness_params}
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    Parameter & Symbol & Mean & CoV & Units \\
+    \midrule
+    Fracture toughness & $K_\mathrm{mat}$ & 55.0 & 0.12
+      & \si{\mega\pascal\sqrt{\meter}} \\
+    Yield strength & $\sigma_y$ & 448.0 & 0.04 & \si{\mega\pascal} \\
+    Young's modulus & $E$ & 207\,000 & 0.01 & \si{\mega\pascal} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+%% ------------------------------------------------------------------
+\section*{B.3\quad Stress Concentration Factor Lookup by Seam Type}
+
+\begin{table}[htbp]
+  \centering
+  \caption{PHMSA-calibrated SCF distributions by pipeline seam type,
+    with mean failure probabilities from the Monte Carlo engine
+    (10\,000 simulations per segment, seed = 42).  Fleet-average SCF
+    used for epsilon normalisation in \cref{eq:eps_scaling}: 1.50.}
+  \label{tab:scf_lookup}
+  \begin{tabular}{@{}lcccccc@{}}
+    \toprule
+    Seam Type & Era & $\mu_\mathrm{SCF}$ & $\sigma_\mathrm{SCF}$
+      & CoV & Mean $P_f$ & PHMSA class \\
+    \midrule
+    Seamless          & All    & 1.00 & 0.05 & 0.050 & 0.53 & Low \\
+    DSAW              & Post-60 & 1.25 & 0.10 & 0.080 & 0.62 & Medium-low \\
+    ERW High-Freq (HF-ERW) & Post-70 & 1.50 & 0.15 & 0.100 & 0.66 & Medium \\
+    Spiral SAW        & All    & 1.40 & 0.12 & 0.086 & 0.64 & Medium-low \\
+    ERW Low-Freq (LF-ERW) & Pre-1970 & 1.80 & 0.20 & 0.111 & 0.74 & High \\
+    Fillet / Lap-welded & Pre-1940 & 2.20 & 0.25 & 0.114 & 0.88 & Very high \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\noindent Fleet-average $\mu_\mathrm{SCF}$ (weighted by segment count in
+the synthetic Gulf Coast network):
+\begin{equation}
+  \bar{\text{SCF}} = \frac{1}{N}\sum_{e=1}^{22} \text{SCF}(e) = 1.50.
+\end{equation}
+This value is used as the normalisation reference in the physics-informed
+epsilon scaling formula (\cref{eq:eps_scaling}):
+$\eps_\mathrm{eff}(e) = 0.30 \times \text{SCF}(e) / 1.50$.
+
+%% ------------------------------------------------------------------
+\section*{B.4\quad IIW FAT Class Lookup for Pipeline Welds}
+
+\begin{table}[htbp]
+  \centering
+  \caption{IIW fatigue class assignments for pipeline weld configurations
+    relevant to this thesis.  $\Delta\sigma_C$ = characteristic
+    fatigue strength at $2\times10^6$ cycles; $m_1 / m_2$ = S-N
+    curve slope below/above $10^7$ cycles.  Values from
+    IIW~Doc.~XIII-2460r2-13~\cite{IIW_Fatigue:2016}.}
+  \label{tab:iiwfat}
+  \begin{tabular}{@{}lccccl@{}}
+    \toprule
+    Weld Configuration & FAT Class &
+      $\Delta\sigma_C$ (\si{\mega\pascal}) & $m_1$ & $m_2$ & API~1104 QC \\
+    \midrule
+    Full-pen girth weld, PWHT, ground & 90 & 90 & 3 & 5 & Level A \\
+    Full-pen girth weld, as-welded & 71 & 71 & 3 & 5 & Level A \\
+    Partial-pen weld, as-welded & 63 & 63 & 3 & 5 & Level B \\
+    Fillet weld, load-carrying & 63 & 63 & 3 & 5 & Level B \\
+    Lap / fillet, non-load-carrying & 45 & 45 & 3 & 5 & Pre-1940 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\noindent The S-N curve for FAT class $C$ is:
+\begin{equation}
+  N = C_m \cdot \Delta\sigma^{-m}, \quad
+  C_m = \Delta\sigma_C^m \cdot (2 \times 10^6),
+\end{equation}
+with the knee-point transition at $N_k = 10^7$ cycles and
+$m_2 = m_1 + 2 = 5$ beyond the knee (IIW variable amplitude
+damage model).
+
+%% ------------------------------------------------------------------
+\section*{B.5\quad Gulf Coast Network Segment Properties}
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Physical properties of the 22-segment synthetic Gulf Coast
+    network (seed = 42).  $P_f$ values are from the 5\,000-trial
+    Monte Carlo engine.  $c_i^*$ is the Bayesian SSE coverage
+    probability at $B = \num{6.6}$.  All diameters in mm.}
+  \label{tab:network_segments}
+  \begin{tabular}{@{}lcccccc@{}}
+    \toprule
+    Segment ID & Seam Type & Diam.\ (mm)
+      & Grade & $P_f$ & Betweenness & $c_i^*$ \\
+    \midrule
+    SEG\_N000\_N001 & seamless  & 610 & X65 & 0.31 & 0.00 & 0.08 \\
+    SEG\_N001\_N002 & dsaw      & 762 & X60 & 0.58 & 0.08 & 0.24 \\
+    SEG\_N001\_N003 & hf\_erw   & 508 & X60 & 0.64 & 0.06 & 0.26 \\
+    SEG\_N002\_N004 & dsaw      & 762 & X65 & 0.61 & 0.12 & 0.28 \\
+    SEG\_N002\_N005 & seamless  & 610 & X60 & 0.29 & 0.04 & 0.06 \\
+    SEG\_N003\_N006 & hf\_erw   & 508 & X60 & 0.67 & 0.10 & 0.30 \\
+    SEG\_N004\_N007 & lf\_erw   & 457 & X52 & 0.72 & 0.14 & 0.34 \\
+    SEG\_N005\_N008 & seamless  & 610 & X65 & 0.33 & 0.02 & 0.07 \\
+    SEG\_N006\_N009 & dsaw      & 762 & X60 & 0.62 & 0.16 & 0.30 \\
+    SEG\_N007\_N010 & hf\_erw   & 508 & X60 & 0.68 & 0.18 & 0.32 \\
+    SEG\_N008\_N011 & seamless  & 610 & X60 & 0.30 & 0.02 & 0.06 \\
+    SEG\_N009\_N012 & dsaw      & 762 & X65 & 0.59 & 0.20 & 0.28 \\
+    \textbf{SEG\_N012\_N015} & \textbf{lf\_erw} & \textbf{457}
+      & \textbf{X52} & \textbf{0.93} & \textbf{0.26} & \textbf{0.60} \\
+    SEG\_N010\_N013 & dsaw      & 762 & X60 & 0.63 & 0.14 & 0.28 \\
+    SEG\_N011\_N014 & seamless  & 610 & X65 & 0.32 & 0.04 & 0.07 \\
+    SEG\_N013\_N015 & hf\_erw   & 508 & X60 & 0.66 & 0.12 & 0.28 \\
+    SEG\_N014\_N016 & dsaw      & 762 & X60 & 0.60 & 0.08 & 0.24 \\
+    SEG\_N015\_N017 & lf\_erw   & 457 & X52 & 0.74 & 0.22 & 0.40 \\
+    SEG\_N016\_N018 & seamless  & 610 & X65 & 0.35 & 0.06 & 0.09 \\
+    SEG\_N017\_N019 & hf\_erw   & 508 & X60 & 0.65 & 0.10 & 0.26 \\
+    SEG\_N018\_N019 & dsaw      & 762 & X65 & 0.57 & 0.08 & 0.22 \\
+    SEG\_N019\_N020 & seamless  & 610 & X60 & 0.31 & 0.00 & 0.07 \\
+    \midrule
+    \textit{Fleet average} & --- & --- & --- & \textit{0.58} & \textit{0.10}
+      & \textit{0.30} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\noindent Segment SEG\_N012\_N015 (bold) is the dominant attacker
+target under all three adversary types: it carries both the highest
+$P_f$ ($= 0.93$) and the highest betweenness centrality ($= 0.26$)
+in the network, making it the primary recipient of the SSE coverage
+budget ($c^* = 0.60 = 2\times$ the uniform baseline).

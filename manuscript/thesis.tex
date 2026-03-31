@@ -1,0 +1,360 @@
+%% ============================================================
+%% STRATEGOS MSc Thesis
+%% Physics-Informed Game-Theoretic Defense of Pipeline Infrastructure:
+%% Integrating Weld Joint Vulnerability into Bayesian Stackelberg
+%% Attacker–Defender Models
+%%
+%% Author:    Babak Pirzadi
+%% Programme: STRATEGOS — Strategic Security Studies
+%% Date:      \today
+%% Compiler:  pdflatex + bibtex
+%%            pdflatex thesis.tex
+%%            bibtex   thesis
+%%            pdflatex thesis.tex
+%%            pdflatex thesis.tex
+%% ============================================================
+
+\documentclass[12pt, a4paper, oneside]{report}
+
+%% ---------------------------------------------------------------
+%% Core layout & typography
+%% ---------------------------------------------------------------
+\usepackage[
+  top=2.5cm, bottom=2.5cm,
+  left=3.5cm, right=2.5cm   % 3.5 cm left margin for binding
+]{geometry}
+\usepackage{setspace}
+\onehalfspacing               % Required by most European thesis guidelines
+\setlength{\headheight}{15pt} % Suppress fancyhdr headheight warning
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{mathptmx}         % Times New Roman for body + math
+\usepackage{helvet}           % Helvetica for sans-serif headings
+\usepackage{microtype}        % Improved justification
+
+%% ---------------------------------------------------------------
+%% Maths & science
+%% ---------------------------------------------------------------
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{bm}               % Bold math symbols
+\usepackage{siunitx}          % SI units: \SI{9.81}{m/s^2}
+\sisetup{
+  separate-uncertainty = true,
+  range-phrase         = {--},
+  detect-all,
+}
+
+%% ---------------------------------------------------------------
+%% Graphics, tables, captions
+%% ---------------------------------------------------------------
+\usepackage{graphicx}
+\graphicspath{{figures/}{../docs/figures/}{../etc/figures/}}
+\usepackage{booktabs}          % Professional table rules
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{caption}
+\usepackage{subcaption}        % Sub-figures
+\captionsetup{
+  font        = small,
+  labelfont   = bf,
+  width       = 0.9\textwidth,
+}
+
+%% ---------------------------------------------------------------
+%% Colours
+%% ---------------------------------------------------------------
+\usepackage[dvipsnames, table]{xcolor}
+\definecolor{navyblue}{RGB}{26, 58, 92}
+\definecolor{strategyred}{RGB}{192, 57, 43}
+\definecolor{safegreen}{RGB}{30, 132, 73}
+\definecolor{codegray}{RGB}{245, 245, 245}
+\definecolor{linkcol}{RGB}{26, 58, 92}
+
+%% ---------------------------------------------------------------
+%% Listings (Python code display)
+%% ---------------------------------------------------------------
+\usepackage{listings}
+\lstdefinestyle{pythonstyle}{
+  language        = Python,
+  backgroundcolor = \color{codegray},
+  basicstyle      = \ttfamily\footnotesize,
+  keywordstyle    = \color{navyblue}\bfseries,
+  commentstyle    = \color{gray}\itshape,
+  stringstyle     = \color{strategyred},
+  numberstyle     = \tiny\color{gray},
+  numbers         = left,
+  stepnumber      = 1,
+  frame           = single,
+  framerule       = 0.4pt,
+  rulecolor       = \color{gray!30},
+  breaklines      = true,
+  breakatwhitespace = true,
+  showstringspaces  = false,
+  tabsize           = 4,
+  captionpos        = b,
+}
+\lstset{style=pythonstyle}
+
+%% ---------------------------------------------------------------
+%% Algorithms
+%% ---------------------------------------------------------------
+%% algorithm2e loaded only if needed; not used in current chapter set
+%% \usepackage[ruled, linesnumbered, vlined]{algorithm2e}
+%% \SetKwComment{Comment}{/* }{ */}
+
+%% ---------------------------------------------------------------
+%% Headers, footers, chapter styling
+%% ---------------------------------------------------------------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{gray}{\leftmark}}
+\fancyhead[R]{\small\textcolor{gray}{B.~Pirzadi — STRATEGOS MSc}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\usepackage{titlesec}
+\titleformat{\chapter}[display]
+  {\normalfont\bfseries\color{navyblue}\huge}
+  {\chaptertitlename\ \thechapter}{16pt}{\Huge}
+\titleformat{\section}
+  {\normalfont\bfseries\color{navyblue}\large}
+  {\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\bfseries\color{navyblue}\normalsize}
+  {\thesubsection}{1em}{}
+
+%% ---------------------------------------------------------------
+%% Table of Contents styling
+%% ---------------------------------------------------------------
+\usepackage{tocloft}
+\renewcommand{\cftchapfont}{\bfseries\color{navyblue}}
+\renewcommand{\cftchappagefont}{\bfseries\color{navyblue}}
+\setlength{\cftbeforechapskip}{6pt}
+
+%% ---------------------------------------------------------------
+%% Hyperlinks & PDF metadata
+%% ---------------------------------------------------------------
+\usepackage[
+  pdfauthor   = {Babak Pirzadi},
+  pdftitle    = {Physics-Informed Game-Theoretic Defense of Pipeline Infrastructure},
+  pdfsubject  = {STRATEGOS MSc Thesis},
+  pdfkeywords = {pipeline security Stackelberg game fracture mechanics
+                 adversarial machine learning BS7910 NDE critical infrastructure},
+  colorlinks  = true,
+  linkcolor   = linkcol,
+  citecolor   = safegreen,
+  urlcolor    = strategyred,
+  bookmarks   = true,
+  breaklinks  = true,
+]{hyperref}
+\usepackage{cleveref}          % \cref, \Cref
+
+%% ---------------------------------------------------------------
+%% Bibliography
+%% ---------------------------------------------------------------
+\usepackage[numbers, sort&compress]{natbib}
+\bibliographystyle{unsrtnat}
+
+%% ---------------------------------------------------------------
+%% Abbreviations & acronyms
+%% ---------------------------------------------------------------
+\usepackage[printonlyused]{acronym}
+
+%% ---------------------------------------------------------------
+%% Theorem environments
+%% ---------------------------------------------------------------
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+%% ---------------------------------------------------------------
+%% Custom math operators & shorthand
+%% ---------------------------------------------------------------
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\newcommand{\Pf}{P_{\mathrm{f}}}    % Failure probability
+\newcommand{\Kr}{K_{\mathrm{r}}}    % Toughness ratio
+\newcommand{\Lr}{L_{\mathrm{r}}}    % Load ratio
+\newcommand{\Ud}{U_{\mathrm{d}}}    % Defender utility
+\newcommand{\Ua}{U_{\mathrm{a}}}    % Attacker utility
+\newcommand{\EU}{\mathrm{EU}}       % Expected utility (Appendix A)
+\newcommand{\bmc}{\bm{c}}           % Coverage vector
+\newcommand{\eps}{\varepsilon}       % Epsilon
+\newcommand{\CI}[1]{\mathcal{#1}}   % Calligraphic sets
+
+%% ============================================================
+%%  DOCUMENT
+%% ============================================================
+
+\begin{document}
+
+%% ---------------------------------------------------------------
+%% Title Page
+%% ---------------------------------------------------------------
+\begin{titlepage}
+\begin{center}
+  \vspace*{1.5cm}
+  {\Huge\bfseries\color{navyblue}
+    Physics-Informed Game-Theoretic Defense\\[0.4em]
+    of Pipeline Infrastructure}\\[1em]
+  {\large\color{navyblue}
+    Integrating Weld Joint Vulnerability into\\
+    Bayesian Stackelberg Attacker--Defender Models}
+
+  \vspace{1.5cm}
+  \rule{0.6\textwidth}{0.8pt}\\[0.8em]
+  {\Large Babak Pirzadi}\\[0.4em]
+  {\normalsize\textit{babak.pirzadi@gmail.com}}
+
+  \vspace{1.2cm}
+  {\normalsize
+    A thesis submitted in partial fulfilment of the requirements\\
+    for the degree of \textbf{Master of Science} in\\[0.2em]
+    \textbf{STRATEGOS — Strategic Security Studies}}
+
+  \vfill
+  % Logo placeholder — replace strategos_logo.png with actual file before submission
+  \IfFileExists{strategos_logo.png}{%
+    \includegraphics[width=4cm]{strategos_logo}\\[0.8em]%
+  }{%
+    \vspace{1cm}%
+  }
+  {\normalsize\today}
+\end{center}
+\end{titlepage}
+
+%% ---------------------------------------------------------------
+%% Front matter: roman numerals
+%% ---------------------------------------------------------------
+\pagenumbering{roman}
+\setcounter{page}{1}
+\pagestyle{plain}
+
+%% ---------------------------------------------------------------
+%% Declaration
+%% ---------------------------------------------------------------
+\chapter*{Declaration of Originality}
+\addcontentsline{toc}{chapter}{Declaration of Originality}
+\thispagestyle{plain}
+
+I hereby declare that this thesis is my own original work, carried out
+independently, and that all sources and assistance used in preparing this
+manuscript have been duly acknowledged.  No part of this thesis has been
+submitted previously for any degree or examination at this or any other
+institution.
+
+\vspace{2cm}
+\noindent
+\begin{tabular}{@{}ll}
+  Signature: & \makebox[6cm]{\hrulefill} \\[1em]
+  Name:       & Babak Pirzadi \\[0.5em]
+  Date:       & \today
+\end{tabular}
+
+%% ---------------------------------------------------------------
+%% Abstract
+%% ---------------------------------------------------------------
+\input{chapters/abstract}
+
+%% ---------------------------------------------------------------
+%% Acknowledgements
+%% ---------------------------------------------------------------
+\chapter*{Acknowledgements}
+\addcontentsline{toc}{chapter}{Acknowledgements}
+\thispagestyle{plain}
+
+\input{chapters/acknowledgements}
+
+%% ---------------------------------------------------------------
+%% Abbreviations
+%% ---------------------------------------------------------------
+\chapter*{List of Abbreviations}
+\addcontentsline{toc}{chapter}{List of Abbreviations}
+\thispagestyle{plain}
+
+\input{chapters/abbreviations}
+
+%% ---------------------------------------------------------------
+%% Table of Contents
+%% ---------------------------------------------------------------
+\clearpage
+\pagestyle{fancy}
+\tableofcontents
+
+%% ---------------------------------------------------------------
+%% List of Figures
+%% ---------------------------------------------------------------
+\clearpage
+\listoffigures
+\addcontentsline{toc}{chapter}{List of Figures}
+
+%% ---------------------------------------------------------------
+%% List of Tables
+%% ---------------------------------------------------------------
+\clearpage
+\listoftables
+\addcontentsline{toc}{chapter}{List of Tables}
+
+%% ---------------------------------------------------------------
+%% Main matter: arabic numerals
+%% ---------------------------------------------------------------
+\clearpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\pagestyle{fancy}
+
+%% ---------------------------------------------------------------
+%%  CHAPTER 1 — INTRODUCTION
+%% ---------------------------------------------------------------
+\input{chapters/ch1_introduction}
+
+%% ---------------------------------------------------------------
+%%  CHAPTER 2 — LITERATURE REVIEW
+%% ---------------------------------------------------------------
+\input{chapters/ch2_literature}
+
+%% ---------------------------------------------------------------
+%%  CHAPTER 3 — PHYSICS-INFORMED VULNERABILITY ENGINE (ZONE C)
+%% ---------------------------------------------------------------
+\input{chapters/ch3_physics}
+
+%% ---------------------------------------------------------------
+%%  CHAPTER 4 — ADVERSARIAL ROBUSTNESS OF NDE (ZONE A)
+%% ---------------------------------------------------------------
+\input{chapters/ch4_adversarial}
+
+%% ---------------------------------------------------------------
+%%  CHAPTER 5 — RESULTS & INTEGRATED ANALYSIS
+%% ---------------------------------------------------------------
+\input{chapters/ch5_results}
+
+%% ---------------------------------------------------------------
+%%  CHAPTER 6 — CONCLUSION & FUTURE WORK
+%% ---------------------------------------------------------------
+\input{chapters/ch6_conclusion}
+
+%% ---------------------------------------------------------------
+%%  BIBLIOGRAPHY
+%% ---------------------------------------------------------------
+\clearpage
+\phantomsection
+\addcontentsline{toc}{chapter}{Bibliography}
+\bibliography{thesis}
+
+%% ---------------------------------------------------------------
+%%  APPENDICES
+%% ---------------------------------------------------------------
+\appendix
+\renewcommand{\chaptername}{Appendix}
+
+\input{appendices/app_a_lp_derivation}
+\input{appendices/app_b_fad_tables}
+\input{appendices/app_c_code_listing}
+
+\end{document}

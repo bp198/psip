@@ -1,0 +1,63 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# PSIP — docker-compose.yml
+#
+# One-command startup:
+#   docker-compose up          (foreground, with logs)
+#   docker-compose up -d       (detached / background)
+#   docker-compose down        (stop and remove containers)
+#
+# Then open: http://localhost:8000/docs
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── PSIP API ────────────────────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime           # Use the final slim stage
+    image: psip:latest
+    container_name: psip-api
+    restart: unless-stopped
+
+    ports:
+      - "8000:8000"             # Host:Container — change host port if 8000 is taken
+
+    environment:
+      # Runtime settings — override with a .env file or environment variables
+      - PSIP_ENV=production
+      - PSIP_LOG_LEVEL=info
+      - PSIP_WORKERS=1          # Increase for multi-core production servers
+
+    volumes:
+      # Persist any output files (reports, exported results) on the host
+      - psip_data:/app/data
+
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+    # Resource limits — reasonable defaults for a pilot deployment
+    # Remove or adjust for production
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 1G
+        reservations:
+          cpus: "0.5"
+          memory: 256M
+
+  # ── Development override (optional) ────────────────────────────────────────
+  # Use docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+  # to get hot-reload and mounted source for local development.
+  # See docker-compose.dev.yml for the dev overrides.
+
+volumes:
+  psip_data:
+    driver: local

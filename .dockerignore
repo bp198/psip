@@ -1,0 +1,97 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# .dockerignore — exclude everything that does NOT belong in the Docker image
+#
+# Rule: if it's not needed to run the API at runtime, exclude it.
+# This keeps the image lean and prevents secrets from leaking into layers.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Python cache and compiled files ──────────────────────────────────────────
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ── Virtual environments ──────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+.env/
+ENV/
+
+# ── Tests — not needed in the runtime image ──────────────────────────────────
+tests/
+**/*test*.py
+pytest-cache-files*/
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.coveragerc
+
+# ── Development and IDE files ─────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Git and CI ────────────────────────────────────────────────────────────────
+.git/
+.gitignore
+.gitattributes
+.github/
+
+# ── Documentation and thesis manuscript ──────────────────────────────────────
+manuscript/
+docs/
+*.tex
+*.bib
+*.pdf
+*.aux
+*.log
+*.out
+*.toc
+
+# ── Notebooks and exploration scripts ────────────────────────────────────────
+notebooks/
+*.ipynb
+*.ipynb_checkpoints/
+
+# ── Roadmap and non-app assets ────────────────────────────────────────────────
+roadmap/
+dashboards/
+configs/
+
+# ── Secrets and environment files ────────────────────────────────────────────
+# IMPORTANT: never commit or include these in the image
+.env
+.env.*
+*.key
+*.pem
+secrets/
+
+# ── Docker files themselves (no need to copy into the image) ──────────────────
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# ── Large binary / media files ───────────────────────────────────────────────
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.mp4
+*.zip
+*.tar.gz
+
+# ── Mypy and linting caches ───────────────────────────────────────────────────
+.mypy_cache/
+.ruff_cache/

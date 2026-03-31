@@ -1,0 +1,224 @@
+\begin{thebibliography}{32}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Goodfellow et~al.(2015)Goodfellow, Shlens, and
+  Szegedy]{Goodfellow2015}
+I.~J. Goodfellow, J.~Shlens, and C.~Szegedy.
+\newblock Explaining and harnessing adversarial examples.
+\newblock In \emph{3rd International Conference on Learning Representations
+  ({ICLR})}, San Diego, CA, 2015.
+\newblock arXiv:1412.6572.
+
+\bibitem[Kurakin et~al.(2017)Kurakin, Goodfellow, and Bengio]{Kurakin2017}
+A.~Kurakin, I.~J. Goodfellow, and S.~Bengio.
+\newblock Adversarial examples in the physical world.
+\newblock In \emph{5th International Conference on Learning Representations
+  ({ICLR})}, Toulon, France, 2017.
+\newblock arXiv:1607.02533.
+
+\bibitem[Madry et~al.(2018)Madry, Makelov, Schmidt, Tsipras, and
+  Vladu]{Madry2018}
+A.~Madry, A.~Makelov, L.~Schmidt, D.~Tsipras, and A.~Vladu.
+\newblock Towards deep learning models resistant to adversarial attacks.
+\newblock In \emph{6th International Conference on Learning Representations
+  ({ICLR})}, Vancouver, Canada, 2018.
+\newblock arXiv:1706.06083.
+
+\bibitem[H{\o}vik and Maddox(2016)]{IIW_Fatigue:2016}
+A.~F. H{\o}vik and S.~J. Maddox.
+\newblock \emph{{IIW} Recommendations for Fatigue Design of Welded Joints and
+  Components}.
+\newblock International Institute of Welding, Cham, Switzerland, 2016.
+\newblock Document IIW-2259-15.
+
+\bibitem[{Pipeline and Hazardous Materials Safety
+  Administration}(2024)]{PHMSA2024}
+{Pipeline and Hazardous Materials Safety Administration}.
+\newblock Gas transmission and gathering pipeline annual report data.
+\newblock U.S.\ Department of Transportation. Available at
+  \url{https://www.phmsa.dot.gov/data-and-statistics/pipeline}, 2024.
+\newblock Dataset covers 2010--2024; accessed 2025.
+
+\bibitem[Ame(2025)]{ASME_B31_8:2025}
+\emph{{ASME B31.8-2025} — Gas Transmission and Distribution Piping Systems}.
+\newblock American Society of Mechanical Engineers, New York, NY, 2025.
+
+\bibitem[Bri(2019)]{BS7910:2019}
+\emph{{BS 7910:2019} — Guide to Methods for Assessing the Acceptability of
+  Flaws in Metallic Structures}.
+\newblock British Standards Institution, London, UK, fourth edition, 2019.
+\newblock Incorporating Corrigendum No.~1 (2019).
+
+\bibitem[An et~al.(2013)An, Tambe, Ordonez, Shieh, and Kiekintveld]{An2013}
+B.~An, M.~Tambe, F.~Ordonez, E.~Shieh, and C.~Kiekintveld.
+\newblock Deployed {ARMOR} protection: The application of a game-theoretic
+  model for security at the {Los Angeles International Airport}.
+\newblock \emph{Interfaces}, 43\penalty0 (3):\penalty0 271--283, 2013.
+\newblock \doi{10.1287/inte.2013.0693}.
+
+\bibitem[Tambe(2011)]{Tambe2011}
+M.~Tambe.
+\newblock \emph{Security and Game Theory: Algorithms, Deployed Systems, Lessons
+  Learned}.
+\newblock Cambridge University Press, Cambridge, UK, 2011.
+\newblock \doi{10.1017/CBO9780511973031}.
+
+\bibitem[Paruchuri et~al.(2008)Paruchuri, Pearce, Marecki, Tambe, Ordonez, and
+  Kraus]{Paruchuri2008}
+P.~Paruchuri, J.~P. Pearce, J.~Marecki, M.~Tambe, F.~Ordonez, and S.~Kraus.
+\newblock Playing games for security: An efficient exact algorithm for solving
+  {Bayesian} {Stackelberg} games.
+\newblock In \emph{Proceedings of the 7th International Conference on
+  Autonomous Agents and Multiagent Systems ({AAMAS})}, pages 895--902.
+  International Foundation for Autonomous Agents and Multiagent Systems, 2008.
+
+\bibitem[Ame(2021{\natexlab{a}})]{API1104:2021}
+\emph{{API Standard 1104} — Welding of Pipelines and Related Facilities}.
+\newblock American Petroleum Institute, Washington, DC, twenty-second edition,
+  2021{\natexlab{a}}.
+
+\bibitem[Ame(2021{\natexlab{b}})]{API579:2021}
+\emph{{API 579-1/ASME FFS-1} — Fitness-For-Service}.
+\newblock American Petroleum Institute and American Society of Mechanical
+  Engineers, Washington, DC, third edition, 2021{\natexlab{b}}.
+
+\bibitem[DNV(2017)]{DNVGL_RPF101:2017}
+\emph{{DNVGL-RP-F101} — Corroded Pipelines}.
+\newblock DNV GL, H{\o}vik, Norway, 2017.
+
+\bibitem[Anderson(2005)]{Anderson2005}
+T.~L. Anderson.
+\newblock \emph{Fracture Mechanics: Fundamentals and Applications}.
+\newblock CRC Press, Boca Raton, FL, third edition, 2005.
+
+\bibitem[Francis et~al.(2014)Francis, Pargeter, Munn, and
+  Llewellyn]{Francis2014}
+A.~Francis, R.~Pargeter, C.~Munn, and J.~Llewellyn.
+\newblock The use of {BS 7910} for fitness-for-service assessment of welded
+  structures.
+\newblock \emph{Welding in the World}, 58:\penalty0 421--432, 2014.
+\newblock \doi{10.1007/s40194-014-0126-6}.
+
+\bibitem[Mihm et~al.(2020)Mihm, McLane, and Rensing]{Mihm2020}
+A.~Mihm, C.~McLane, and N.~Rensing.
+\newblock Integrity management of pipelines using risk-based inspection.
+\newblock \emph{Journal of Pipeline Engineering}, 19\penalty0 (2):\penalty0
+  73--84, 2020.
+
+\bibitem[Murakami(2002)]{Murakami2002}
+Y.~Murakami.
+\newblock \emph{Metal Fatigue: Effects of Small Defects and Nonmetallic
+  Inclusions}.
+\newblock Elsevier, Oxford, UK, 2002.
+
+\bibitem[Caleyo et~al.(2002)Caleyo, Gonz{\'a}lez, and Hallen]{Caleyo2002}
+F.~Caleyo, J.~L. Gonz{\'a}lez, and J.~M. Hallen.
+\newblock A study on the reliability assessment methodology for pipelines with
+  active corrosion defects.
+\newblock \emph{International Journal of Pressure Vessels and Piping},
+  79\penalty0 (1):\penalty0 77--86, 2002.
+\newblock \doi{10.1016/S0308-0161(01)00124-7}.
+
+\bibitem[Zhu and Başar(2013)]{Zhu2013}
+Q.~Zhu and T.~Başar.
+\newblock Game-theoretic approach to feedback-driven multi-stage moving target
+  defense.
+\newblock \emph{Decision and Game Theory for Security ({GameSec})}, pages
+  246--263, 2013.
+\newblock \doi{10.1007/978-3-319-02786-9_15}.
+
+\bibitem[Mo et~al.(2012)Mo, Kim, Brancik, Dickinson, Lee, Perrig, and
+  Sinopoli]{Mo2012}
+Y.~Mo, T.~H. Kim, K.~Brancik, D.~Dickinson, H.~Lee, A.~Perrig, and B.~Sinopoli.
+\newblock Cyber-physical security of a smart grid infrastructure.
+\newblock \emph{Proceedings of the {IEEE}}, 100\penalty0 (1):\penalty0
+  195--209, 2012.
+\newblock \doi{10.1109/JPROC.2011.2161428}.
+
+\bibitem[Conitzer and Sandholm(2006)]{Conitzer2006}
+V.~Conitzer and T.~Sandholm.
+\newblock Computing the optimal strategy to commit to.
+\newblock In \emph{Proceedings of the 7th {ACM} Conference on Electronic
+  Commerce ({EC})}, pages 82--91. ACM, 2006.
+\newblock \doi{10.1145/1134707.1134717}.
+
+\bibitem[Korzhyk et~al.(2011)Korzhyk, Yin, Kiekintveld, Conitzer, and
+  Tambe]{Korzhyk2011}
+D.~Korzhyk, Z.~Yin, C.~Kiekintveld, V.~Conitzer, and M.~Tambe.
+\newblock Stackelberg vs.\ {Nash} in security games: An extended investigation
+  of interchangeability, equivalence, and uniqueness.
+\newblock \emph{Journal of Artificial Intelligence Research}, 41:\penalty0
+  297--327, 2011.
+\newblock \doi{10.1613/jair.3269}.
+
+\bibitem[Newman(2010)]{Newman2010}
+M.~E.~J. Newman.
+\newblock \emph{Networks: An Introduction}.
+\newblock Oxford University Press, Oxford, UK, 2010.
+\newblock \doi{10.1093/acprof:oso/9780199206650.001.0001}.
+
+\bibitem[Albert et~al.(2000)Albert, Jeong, and Barab{\'a}si]{Albert2000}
+R.~Albert, H.~Jeong, and A.-L. Barab{\'a}si.
+\newblock Error and attack tolerance of complex networks.
+\newblock \emph{Nature}, 406:\penalty0 378--382, 2000.
+\newblock \doi{10.1038/35019019}.
+
+\bibitem[Brown et~al.(2006)Brown, Carlyle, Salmeron, and Wood]{Brown2006}
+G.~Brown, M.~Carlyle, J.~Salmeron, and K.~Wood.
+\newblock Defending critical infrastructure.
+\newblock \emph{Interfaces}, 36\penalty0 (6):\penalty0 530--544, 2006.
+\newblock \doi{10.1287/inte.1060.0245}.
+
+\bibitem[Lewis(2014)]{Lewis2014}
+T.~G. Lewis.
+\newblock Critical infrastructure protection in homeland security: Defending a
+  networked nation.
+\newblock \emph{Wiley}, 2014.
+\newblock Second Edition.
+
+\bibitem[Szegedy et~al.(2014)Szegedy, Zaremba, Sutskever, Bruna, Erhan,
+  Goodfellow, and Fergus]{Szegedy2014}
+C.~Szegedy, W.~Zaremba, I.~Sutskever, J.~Bruna, D.~Erhan, I.~Goodfellow, and
+  R.~Fergus.
+\newblock Intriguing properties of neural networks.
+\newblock \emph{arXiv preprint}, 2014.
+\newblock arXiv:1312.6199.
+
+\bibitem[Goodfellow et~al.(2016)Goodfellow, Bengio, and
+  Courville]{Goodfellow2016}
+I.~Goodfellow, Y.~Bengio, and A.~Courville.
+\newblock \emph{Deep Learning}.
+\newblock MIT Press, Cambridge, MA, 2016.
+\newblock \url{https://www.deeplearningbook.org}.
+
+\bibitem[Carlini and Wagner(2017)]{Carlini2017}
+N.~Carlini and D.~Wagner.
+\newblock Towards evaluating the robustness of neural networks.
+\newblock \emph{IEEE Symposium on Security and Privacy}, pages 39--57, 2017.
+\newblock \doi{10.1109/SP.2017.49}.
+
+\bibitem[Munir et~al.(2019)Munir, Kim, Song, and Kang]{Munir2019}
+N.~Munir, H.~J. Kim, S.~J. Song, and S.~S. Kang.
+\newblock Convolutional neural network for ultrasonic weld defect
+  classification and detection.
+\newblock \emph{International Journal of Advanced Manufacturing Technology},
+  101:\penalty0 1687--1698, 2019.
+\newblock \doi{10.1007/s00170-018-3038-4}.
+
+\bibitem[Meyendorf et~al.(2022)Meyendorf, Ida, Singh, and Vrana]{Meyendorf2022}
+N.~Meyendorf, N.~Ida, R.~Singh, and J.~Vrana.
+\newblock Quantitative {NDE} for the characterization of extended fatigue
+  cracks using deep learning.
+\newblock \emph{NDT \& E International}, 132:\penalty0 102716, 2022.
+\newblock \doi{10.1016/j.ndteint.2022.102716}.
+
+\bibitem[Schrijver(1986)]{Schrijver1986}
+A.~Schrijver.
+\newblock \emph{Theory of Linear and Integer Programming}.
+\newblock Wiley, Chichester, UK, 1986.
+
+\end{thebibliography}

@@ -1,0 +1,156 @@
+%% ============================================================
+%% CHAPTER 6 — CONCLUSION AND FUTURE WORK
+%% ============================================================
+
+\chapter{Conclusion and Future Work}
+\label{ch:conclusion}
+
+\section{Summary of Contributions}
+\label{sec:conclusion_summary}
+
+This thesis has developed, implemented, and validated the first
+end-to-end physics-informed game-theoretic security framework for
+gas transmission pipeline infrastructure.  The four original
+contributions, summarised below, address a gap that spans three
+decades of parallel but unconnected developments in structural
+integrity, security game theory, and adversarial machine learning.
+
+\paragraph{Contribution 1 — Physics-Informed Payoff Engine.}
+The Monte Carlo failure probability engine, grounded in
+\ac{BS7910}:2019 Level~2 \ac{FAD} and \ac{IIW} fatigue standards and
+calibrated against 216 \ac{PHMSA} weld failure events, produces
+$\Pf \in [\num{0.29}, \num{0.93}]$ across the test network.  The
+resulting hierarchy (seamless $< $ DSAW $<$ HF-ERW $<$ LF-ERW $<$
+fillet) reproduces the empirical PHMSA failure-rate ordering, validating
+the calibration methodology.
+
+\paragraph{Contribution 2 — Bayesian Stackelberg SSE.}
+The LP-enumeration solver with three attacker types delivers a
+physics-informed \ac{SSE} that outperforms uniform allocation by
+\SI{17.0}{\percent} in total expected network loss at a
+\SI{30}{\percent} defender budget.  The budget sensitivity analysis
+demonstrates diminishing returns beyond $B/N \approx \num{0.60}$,
+providing an evidence-based decision boundary for resource planning.
+
+\paragraph{Contribution 3 — Adversarial NDE Threat Model.}
+The \textsc{WeldDefectMLP} classifier (99.7\% clean accuracy) is shown
+to be vulnerable to white-box $L_\infty$ attacks: \ac{BIM} achieves
+\SI{20.1}{\percent} \acs{ASR} at $\eps = \num{0.30}$.  The
+physics-informed $\eps$ scaling (\cref{eq:eps_scaling}) reveals that
+the most game-theoretically prioritised segments face the highest
+adversarial NDE threat, identifying a compounding risk unaddressed
+by either standard alone.
+
+\paragraph{Contribution 4 — Integrated Dashboard.}
+The three-tab Plotly Dash application unifies all four model layers
+into a deployable decision-support tool with click-to-inspect FAD
+assessment, SSE coverage visualisation, and scenario comparison.
+The 310-test suite with full public-interface coverage ensures
+reproducibility and extensibility.
+
+\section{Implications for Mediterranean Pipeline Security}
+\label{sec:conclusion_med}
+
+The STRATEGOS programme's focus on Mediterranean energy security makes
+the extension to European corridors the most immediate application.
+The Trans-Adriatic Pipeline (\ac{TAP}, \SI{878}{\kilo\meter},
+\SI{1.2}{\meter} DSAW, \acs{ASME}~B31.8 design basis) and the
+SNAM~Rete~Gas onshore network (Italy, \SI{32000}{\kilo\meter},
+mixed vintage) share the physical characteristics of the synthetic
+network: heterogeneous seam types, legacy ERW segments, and high
+betweenness nodes at compressor stations.
+
+The calibration pipeline is directly transferable: European regulators
+(ENTSOG, ANSFR-T, ARERA) maintain incident databases analogous to
+\ac{PHMSA}, and \ac{BS7910} is the mandated standard for FFS
+assessment across EU member state operators.  The primary adaptation
+required is re-calibrating the SCF distributions against European
+incident data and extending the network topology to real GIS
+infrastructure, which can be imported directly from ENTSOG's
+publicly available TEN-E network data.
+
+\section{Limitations}
+\label{sec:conclusion_limitations}
+
+\begin{enumerate}
+  \item \textbf{Synthetic topology.}  The Gulf Coast network is
+    representative but not operator-specific.  Conclusions about
+    absolute risk levels should not be transferred to real systems
+    without re-calibration.
+
+  \item \textbf{Feature-vector NDE model.}  The adversarial attacks
+    operate in a 32-dimensional feature space rather than directly
+    on radiograph images.  While the threat model is conceptually
+    valid, the ASR values are not directly comparable to attacks on
+    real image-based NDE systems.
+
+  \item \textbf{Single-stage game.}  The Bayesian SSE is a one-shot
+    model.  Dynamic games with learning adversaries (e.g., repeated
+    Stackelberg with Bayesian updating) are not addressed.
+
+  \item \textbf{Correlated failures.}  The \ac{MC} engine treats
+    segment failures as independent.  Correlated failure mechanisms
+    (e.g., pressure surge, soil settlement) are outside scope.
+\end{enumerate}
+
+\section{Directions for Future Research}
+\label{sec:conclusion_future}
+
+Six directions for future research emerge directly from the
+limitations above:
+
+\begin{enumerate}
+  \item \textbf{Image-based CNN adversarial NDE.}  Replace
+    \textsc{WeldDefectMLP} with a small CNN (e.g., 3 conv layers)
+    trained on synthetic 64~$\times$~64 weld radiograph images,
+    implementing FGSM/PGD via PyTorch autograd for a higher-fidelity
+    adversarial threat model.
+
+  \item \textbf{Real network topologies.}  Import ENTSOG GeoJSON
+    pipeline data (available at \url{https://www.entsog.eu}) to
+    replace the synthetic Gulf Coast topology with a realistic
+    European corridor, maintaining the same calibration pipeline.
+
+  \item \textbf{Dynamic Stackelberg with adversary learning.}  Extend
+    the SSE to a repeated game where the defender observes attack
+    history and updates attacker type priors via Bayesian
+    inference~\cite{Zhu2013}.
+
+  \item \textbf{Correlated Monte Carlo.}  Incorporate spatial
+    correlation in material properties (e.g., through a
+    Gaussian random field on yield strength) to model batch
+    manufacturing defects and soil-condition clustering.
+
+  \item \textbf{Certified adversarial robustness.}  Apply interval
+    bound propagation or randomised smoothing~\cite{Carlini2017}
+    to provide provable robustness guarantees for the NDE classifier
+    at specified $\eps$ levels, enabling standards-based acceptance
+    criteria for AI-assisted inspection.
+
+  \item \textbf{Cyber-physical attack modelling.}  Extend the
+    adversarial layer to include SCADA signal manipulation (pressure
+    and flow sensor spoofing), connecting the NDE threat model to
+    the broader cyber-physical security literature~\cite{Mo2012}.
+\end{enumerate}
+
+\section{Closing Remarks}
+\label{sec:conclusion_closing}
+
+The central argument of this thesis is that pipeline security cannot
+be reduced to either pure structural analysis or pure strategic modelling
+independently: the physics determines what is worth attacking, and the
+adversary's knowledge of the physics determines how they will attack.
+The $\Pf$-informed Stackelberg game captures the first relationship;
+the adversarial NDE threat model captures the second.  Together they
+define a threat surface that is quantifiably larger than either
+framework alone would suggest.
+
+The \SI{17.0}{\percent} reduction in network expected loss achieved
+by physics-informed SSE over uniform allocation, and the \SI{20.1}{\percent}
+\ac{BIM} \acs{ASR} at $\eps = \num{0.30}$, are not large numbers in
+isolation.  Their significance lies in what they make tractable:
+the systematic, standards-grounded quantification of a cross-domain
+threat that has so far been addressed only by expert judgment, and
+the provision of a deployable decision-support tool for operators
+and regulators who must make resource-allocation decisions under
+precisely that uncertainty.

@@ -1,0 +1,387 @@
+%% ============================================================
+%% STRATEGOS Thesis Bibliography
+%% Physics-Informed Game-Theoretic Defense of Pipeline Infrastructure
+%% Author: Babak Pirzadi
+%% ============================================================
+
+%% ---------------------------------------------------------------
+%% STANDARDS — Regulatory & Engineering (primary sources)
+%% ---------------------------------------------------------------
+
+@manual{BS7910:2019,
+  title        = {{BS 7910:2019} — Guide to Methods for Assessing the
+                  Acceptability of Flaws in Metallic Structures},
+  organization = {British Standards Institution},
+  address      = {London, UK},
+  edition      = {Fourth},
+  year         = {2019},
+  note         = {Incorporating Corrigendum No.~1 (2019)},
+}
+
+@manual{ASME_B31_8:2025,
+  title        = {{ASME B31.8-2025} — Gas Transmission and Distribution
+                  Piping Systems},
+  organization = {American Society of Mechanical Engineers},
+  address      = {New York, NY},
+  year         = {2025},
+}
+
+@manual{API1104:2021,
+  title        = {{API Standard 1104} — Welding of Pipelines and Related
+                  Facilities},
+  organization = {American Petroleum Institute},
+  address      = {Washington, DC},
+  edition      = {Twenty-Second},
+  year         = {2021},
+}
+
+@manual{API579:2021,
+  title        = {{API 579-1/ASME FFS-1} — Fitness-For-Service},
+  organization = {American Petroleum Institute and
+                  American Society of Mechanical Engineers},
+  address      = {Washington, DC},
+  edition      = {Third},
+  year         = {2021},
+}
+
+@manual{ASME_FFS1:2016,
+  title        = {{ASME FFS-1/API 579-1} — Fitness-For-Service},
+  organization = {American Society of Mechanical Engineers},
+  address      = {New York, NY},
+  edition      = {Second},
+  year         = {2016},
+}
+
+@manual{DNVGL_RPF101:2017,
+  title        = {{DNVGL-RP-F101} — Corroded Pipelines},
+  organization = {DNV GL},
+  address      = {H{\o}vik, Norway},
+  year         = {2017},
+}
+
+@manual{IIW_Fatigue:2016,
+  title        = {{IIW} Recommendations for Fatigue Design of Welded Joints
+                  and Components},
+  author       = {H{\o}vik, A. F. and Maddox, S. J.},
+  editor       = {Hobbacher, A.},
+  organization = {International Institute of Welding},
+  publisher    = {Springer},
+  address      = {Cham, Switzerland},
+  year         = {2016},
+  doi          = {10.1007/978-3-319-23757-2},
+  note         = {Document IIW-2259-15},
+}
+
+%% ---------------------------------------------------------------
+%% STACKELBERG SECURITY GAMES — Foundational
+%% ---------------------------------------------------------------
+
+@inproceedings{Conitzer2006,
+  author    = {Conitzer, V. and Sandholm, T.},
+  title     = {Computing the Optimal Strategy to Commit to},
+  booktitle = {Proceedings of the 7th {ACM} Conference on Electronic Commerce ({EC})},
+  year      = {2006},
+  pages     = {82--91},
+  publisher = {ACM},
+  doi       = {10.1145/1134707.1134717},
+}
+
+@inproceedings{Paruchuri2008,
+  author    = {Paruchuri, P. and Pearce, J. P. and Marecki, J. and
+               Tambe, M. and Ordonez, F. and Kraus, S.},
+  title     = {Playing Games for Security: An Efficient Exact Algorithm for
+               Solving {Bayesian} {Stackelberg} Games},
+  booktitle = {Proceedings of the 7th International Conference on
+               Autonomous Agents and Multiagent Systems ({AAMAS})},
+  year      = {2008},
+  pages     = {895--902},
+  publisher = {International Foundation for Autonomous Agents and
+               Multiagent Systems},
+}
+
+@book{Tambe2011,
+  author    = {Tambe, M.},
+  title     = {Security and Game Theory: Algorithms, Deployed Systems,
+               Lessons Learned},
+  publisher = {Cambridge University Press},
+  address   = {Cambridge, UK},
+  year      = {2011},
+  doi       = {10.1017/CBO9780511973031},
+}
+
+@article{Korzhyk2011,
+  author  = {Korzhyk, D. and Yin, Z. and Kiekintveld, C. and Conitzer, V. and
+             Tambe, M.},
+  title   = {Stackelberg vs.\ {Nash} in Security Games: An Extended
+             Investigation of Interchangeability, Equivalence, and Uniqueness},
+  journal = {Journal of Artificial Intelligence Research},
+  volume  = {41},
+  pages   = {297--327},
+  year    = {2011},
+  doi     = {10.1613/jair.3269},
+}
+
+@article{An2013,
+  author  = {An, B. and Tambe, M. and Ordonez, F. and Shieh, E. and
+             Kiekintveld, C.},
+  title   = {Deployed {ARMOR} Protection: The Application of a Game-Theoretic
+             Model for Security at the {Los Angeles International Airport}},
+  journal = {Interfaces},
+  volume  = {43},
+  number  = {3},
+  pages   = {271--283},
+  year    = {2013},
+  doi     = {10.1287/inte.2013.0693},
+}
+
+@article{Brown2006,
+  author  = {Brown, G. and Carlyle, M. and Salmeron, J. and Wood, K.},
+  title   = {Defending Critical Infrastructure},
+  journal = {Interfaces},
+  volume  = {36},
+  number  = {6},
+  pages   = {530--544},
+  year    = {2006},
+  doi     = {10.1287/inte.1060.0245},
+}
+
+%% ---------------------------------------------------------------
+%% ADVERSARIAL MACHINE LEARNING
+%% ---------------------------------------------------------------
+
+@inproceedings{Goodfellow2015,
+  author    = {Goodfellow, I. J. and Shlens, J. and Szegedy, C.},
+  title     = {Explaining and Harnessing Adversarial Examples},
+  booktitle = {3rd International Conference on Learning Representations ({ICLR})},
+  year      = {2015},
+  address   = {San Diego, CA},
+  note      = {arXiv:1412.6572},
+}
+
+@inproceedings{Madry2018,
+  author    = {Madry, A. and Makelov, A. and Schmidt, L. and
+               Tsipras, D. and Vladu, A.},
+  title     = {Towards Deep Learning Models Resistant to Adversarial Attacks},
+  booktitle = {6th International Conference on Learning Representations ({ICLR})},
+  year      = {2018},
+  address   = {Vancouver, Canada},
+  note      = {arXiv:1706.06083},
+}
+
+@inproceedings{Kurakin2017,
+  author    = {Kurakin, A. and Goodfellow, I. J. and Bengio, S.},
+  title     = {Adversarial Examples in the Physical World},
+  booktitle = {5th International Conference on Learning Representations ({ICLR})},
+  year      = {2017},
+  address   = {Toulon, France},
+  note      = {arXiv:1607.02533},
+}
+
+@article{Szegedy2014,
+  author  = {Szegedy, C. and Zaremba, W. and Sutskever, I. and Bruna, J. and
+             Erhan, D. and Goodfellow, I. and Fergus, R.},
+  title   = {Intriguing Properties of Neural Networks},
+  journal = {arXiv preprint},
+  year    = {2014},
+  note    = {arXiv:1312.6199},
+}
+
+@article{Carlini2017,
+  author  = {Carlini, N. and Wagner, D.},
+  title   = {Towards Evaluating the Robustness of Neural Networks},
+  journal = {IEEE Symposium on Security and Privacy},
+  year    = {2017},
+  pages   = {39--57},
+  doi     = {10.1109/SP.2017.49},
+}
+
+%% ---------------------------------------------------------------
+%% NDE / NON-DESTRUCTIVE EXAMINATION
+%% ---------------------------------------------------------------
+
+@article{Meyendorf2022,
+  author  = {Meyendorf, N. and Ida, N. and Singh, R. and Vrana, J.},
+  title   = {Quantitative {NDE} for the Characterization of Extended Fatigue
+             Cracks Using Deep Learning},
+  journal = {NDT \& E International},
+  volume  = {132},
+  year    = {2022},
+  pages   = {102716},
+  doi     = {10.1016/j.ndteint.2022.102716},
+}
+
+@article{Munir2019,
+  author  = {Munir, N. and Kim, H. J. and Song, S. J. and Kang, S. S.},
+  title   = {Convolutional Neural Network for Ultrasonic Weld Defect
+             Classification and Detection},
+  journal = {International Journal of Advanced Manufacturing Technology},
+  volume  = {101},
+  pages   = {1687--1698},
+  year    = {2019},
+  doi     = {10.1007/s00170-018-3038-4},
+}
+
+%% ---------------------------------------------------------------
+%% PIPELINE INTEGRITY & RISK
+%% ---------------------------------------------------------------
+
+@article{Caleyo2002,
+  author  = {Caleyo, F. and Gonz{\'a}lez, J. L. and Hallen, J. M.},
+  title   = {A Study on the Reliability Assessment Methodology for Pipelines
+             with Active Corrosion Defects},
+  journal = {International Journal of Pressure Vessels and Piping},
+  volume  = {79},
+  number  = {1},
+  pages   = {77--86},
+  year    = {2002},
+  doi     = {10.1016/S0308-0161(01)00124-7},
+}
+
+@article{Francis2014,
+  author  = {Francis, A. and Pargeter, R. and Munn, C. and Llewellyn, J.},
+  title   = {The Use of {BS 7910} for Fitness-for-Service Assessment of
+             Welded Structures},
+  journal = {Welding in the World},
+  volume  = {58},
+  pages   = {421--432},
+  year    = {2014},
+  doi     = {10.1007/s40194-014-0126-6},
+}
+
+@article{Mihm2020,
+  author  = {Mihm, A. and McLane, C. and Rensing, N.},
+  title   = {Integrity Management of Pipelines Using Risk-Based Inspection},
+  journal = {Journal of Pipeline Engineering},
+  volume  = {19},
+  number  = {2},
+  pages   = {73--84},
+  year    = {2020},
+}
+
+%% ---------------------------------------------------------------
+%% CRITICAL INFRASTRUCTURE PROTECTION
+%% ---------------------------------------------------------------
+
+@article{Lewis2014,
+  author  = {Lewis, T. G.},
+  title   = {Critical Infrastructure Protection in Homeland Security:
+             Defending a Networked Nation},
+  journal = {Wiley},
+  year    = {2014},
+  note    = {Second Edition},
+}
+
+@article{Zhu2013,
+  author  = {Zhu, Q. and Başar, T.},
+  title   = {Game-Theoretic Approach to Feedback-Driven Multi-Stage Moving
+             Target Defense},
+  journal = {Decision and Game Theory for Security ({GameSec})},
+  year    = {2013},
+  pages   = {246--263},
+  doi     = {10.1007/978-3-319-02786-9_15},
+}
+
+@article{Mo2012,
+  author  = {Mo, Y. and Kim, T. H. and Brancik, K. and Dickinson, D. and
+             Lee, H. and Perrig, A. and Sinopoli, B.},
+  title   = {Cyber-Physical Security of a Smart Grid Infrastructure},
+  journal = {Proceedings of the {IEEE}},
+  volume  = {100},
+  number  = {1},
+  pages   = {195--209},
+  year    = {2012},
+  doi     = {10.1109/JPROC.2011.2161428},
+}
+
+%% ---------------------------------------------------------------
+%% PHMSA & REGULATORY DATA
+%% ---------------------------------------------------------------
+
+@misc{PHMSA2024,
+  author       = {{Pipeline and Hazardous Materials Safety Administration}},
+  title        = {Gas Transmission and Gathering Pipeline Annual Report Data},
+  howpublished = {U.S.\ Department of Transportation. Available at
+                  \url{https://www.phmsa.dot.gov/data-and-statistics/pipeline}},
+  year         = {2024},
+  note         = {Dataset covers 2010--2024; accessed 2025},
+}
+
+%% ---------------------------------------------------------------
+%% NETWORK SCIENCE
+%% ---------------------------------------------------------------
+
+@book{Newman2010,
+  author    = {Newman, M. E. J.},
+  title     = {Networks: An Introduction},
+  publisher = {Oxford University Press},
+  address   = {Oxford, UK},
+  year      = {2010},
+  doi       = {10.1093/acprof:oso/9780199206650.001.0001},
+}
+
+@article{Albert2000,
+  author  = {Albert, R. and Jeong, H. and Barab{\'a}si, A.-L.},
+  title   = {Error and Attack Tolerance of Complex Networks},
+  journal = {Nature},
+  volume  = {406},
+  pages   = {378--382},
+  year    = {2000},
+  doi     = {10.1038/35019019},
+}
+
+%% ---------------------------------------------------------------
+%% FRACTURE MECHANICS
+%% ---------------------------------------------------------------
+
+@book{Anderson2005,
+  author    = {Anderson, T. L.},
+  title     = {Fracture Mechanics: Fundamentals and Applications},
+  publisher = {CRC Press},
+  address   = {Boca Raton, FL},
+  edition   = {Third},
+  year      = {2005},
+}
+
+@book{Murakami2002,
+  author    = {Murakami, Y.},
+  title     = {Metal Fatigue: Effects of Small Defects and Nonmetallic
+               Inclusions},
+  publisher = {Elsevier},
+  address   = {Oxford, UK},
+  year      = {2002},
+}
+
+%% ---------------------------------------------------------------
+%% LINEAR PROGRAMMING
+%% ---------------------------------------------------------------
+
+@book{Schrijver1986,
+  author    = {Schrijver, A.},
+  title     = {Theory of Linear and Integer Programming},
+  publisher = {Wiley},
+  address   = {Chichester, UK},
+  year      = {1986},
+}
+
+%% ---------------------------------------------------------------
+%% MACHINE LEARNING
+%% ---------------------------------------------------------------
+
+@book{Goodfellow2016,
+  author    = {Goodfellow, I. and Bengio, Y. and Courville, A.},
+  title     = {Deep Learning},
+  publisher = {MIT Press},
+  address   = {Cambridge, MA},
+  year      = {2016},
+  note      = {\url{https://www.deeplearningbook.org}},
+}
+
+@article{LeCun2015,
+  author  = {LeCun, Y. and Bengio, Y. and Hinton, G.},
+  title   = {Deep Learning},
+  journal = {Nature},
+  volume  = {521},
+  pages   = {436--444},
+  year    = {2015},
+  doi     = {10.1038/nature14539},
+}

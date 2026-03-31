@@ -1,0 +1,24 @@
+%% siunitx.sty — minimal compatibility shim for STRATEGOS thesis
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{siunitx}[2024/01/01 siunitx shim]
+\DeclareOption*{}\ProcessOptions\relax
+
+\newcommand{\sisetup}[1]{}
+\newcommand{\si}[1]{\ensuremath{\mathrm{#1}}}
+\newcommand{\SI}[2]{#1\,\si{#2}}
+\newcommand{\num}[1]{#1}
+\newcommand{\SIrange}[3]{#1--#2\,\si{#3}}
+\newcommand{\SIlist}[2]{#1\,\si{#2}}
+
+%% Unit macros (simple text/math)
+\newcommand{\percent}{\%}
+\newcommand{\mega}{M}
+\newcommand{\kilo}{k}
+\newcommand{\giga}{G}
+\newcommand{\milli}{m}
+\newcommand{\pascal}{Pa}
+\newcommand{\meter}{m}
+\newcommand{\metre}{m}
+\newcommand{\second}{s}
+\newcommand{\kilogram}{kg}
+\newcommand{\billion}{{\times}10^{9}\,}

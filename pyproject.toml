@@ -1,0 +1,92 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "psip-core"
+version = "0.1.0"
+description = "Pipeline Security & Integrity Platform — Physics-Informed Game-Theoretic Defense of Pipeline Infrastructure"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Babak Pirzadi"},
+]
+keywords = [
+    "game-theory", "pipeline-security", "fracture-mechanics",
+    "weld-integrity", "infrastructure-defense", "stackelberg-game",
+    "adversarial-ml", "nde", "non-destructive-evaluation"
+]
+
+dependencies = [
+    # === Core Scientific Stack ===
+    "numpy>=1.24",
+    "scipy>=1.11",
+    "pandas>=2.0",
+    "matplotlib>=3.7",
+
+    # === Zone C: Network & Game Theory ===
+    "networkx>=3.1",
+    "nashpy>=0.0.40",
+    "geopandas>=0.14",
+    "shapely>=2.0",
+    "pulp>=2.7",               # MILP solver for Stackelberg
+
+    # === Zone C: Dashboard ===
+    "plotly>=5.18",
+    "dash>=2.14",
+
+    # === Data & EDA ===
+    "openpyxl>=3.1",           # Excel I/O
+    "requests>=2.31",          # Data downloads
+
+    # === REST API ===
+    "fastapi>=0.100",
+    "uvicorn[standard]>=0.23",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["psip*", "src*"]
+
+[project.optional-dependencies]
+zone_a = [
+    # === Zone A: Deep Learning & Adversarial ML ===
+    "torch>=2.1",
+    "torchvision>=0.16",
+    "ultralytics>=8.0",        # YOLOv8
+    "adversarial-robustness-toolbox>=1.16",  # IBM ART
+    "foolbox>=3.3",
+    "streamlit>=1.28",
+]
+fea = [
+    # === Optional: Finite Element Analysis ===
+    "pycalculix>=1.1",
+]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "ruff>=0.1",
+    "mypy>=1.7",
+    "jupyter>=1.0",
+    "ipykernel>=6.25",
+]
+
+[project.scripts]
+psip-api = "psip.api:app"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true

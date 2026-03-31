@@ -1,0 +1,83 @@
+%% ============================================================
+%% ABSTRACT
+%% Physics-Informed Game-Theoretic Defense of Pipeline Infrastructure
+%% ============================================================
+
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+\thispagestyle{plain}
+
+\noindent\textbf{Title:}
+\textit{Physics-Informed Game-Theoretic Defense of Pipeline Infrastructure:
+Integrating Weld Joint Vulnerability into Bayesian Stackelberg Attacker--Defender
+Models}
+
+\medskip
+\noindent\textbf{Author:} Babak Pirzadi \hfill
+\textbf{Programme:} STRATEGOS MSc
+
+\vspace{0.8em}
+\noindent\rule{\textwidth}{0.4pt}
+\vspace{0.6em}
+
+%% ---- BODY (target: 280–320 words) --------------------------
+
+Contemporary security game models for critical infrastructure treat attacker
+payoffs as abstract constants, decoupled from the physical properties of
+the assets they represent.  For high-consequence systems such as gas
+transmission pipelines, this abstraction is a strategic liability: an
+adversary who understands fracture mechanics and weld seam metallurgy will
+target assets whose physics makes them disproportionately vulnerable, while
+a defender applying game-theoretic resource allocation ignores the same
+information.  This thesis closes that gap by constructing a four-layer,
+physics-informed attacker--defender framework validated against
+U.S.\ \ac{PHMSA} incident data spanning 2010 to 2024 (\num{1996} records,
+216 material failure events).
+
+The foundation (\emph{Zone C}) is a Monte Carlo failure probability engine
+grounded in the \ac{BS7910}:2019 Level~2 \ac{FAD} and \ac{IIW} fatigue
+classification system.  Weld seam--specific \acp{SCF} — calibrated from
+\ac{PHMSA} fleet statistics — drive per-segment $\Pf$ values across a
+20-node, 22-segment synthetic Gulf Coast transmission network.  The
+resulting $\Pf$ range of $[\num{0.29},\; \num{0.93}]$ faithfully
+reproduces the empirical failure-rate hierarchy: seamless ($\Pf \approx
+\num{0.53}$) to fillet-welded legacy pipe ($\Pf \approx \num{0.88}$).
+These physics-derived values are then used directly as attacker utilities
+in a Bayesian Stackelberg Security Game with three adversary types
+(\textsc{Strategic}, prior $= \num{0.50}$; \textsc{Opportunistic},
+$\num{0.30}$; \textsc{State Actor}, $\num{0.20}$), solved via linear
+programming enumeration.  At a defender budget of \SI{30}{\percent}, the
+physics-informed \ac{SSE} allocation achieves \SI{+52.3}{\percent}
+coverage effectiveness over the zero-budget baseline and a
+\SI{17.0}{\percent} reduction in total expected network loss versus uniform
+resource distribution.
+
+The \emph{adversarial NDE threat layer} (\emph{Zone A}) examines whether
+a sophisticated adversary could suppress the physical vulnerability signal
+at the point of inspection.  A \num{32}-feature weld defect classifier
+(\textsc{WeldDefectMLP}: $32{\to}128{\to}64{\to}4$, trained to
+\SI{99.7}{\percent} clean accuracy) is subjected to white-box
+$L_\infty$-bounded attacks: \ac{FGSM} achieves an \ac{ASR} of
+\SI{18.1}{\percent} at $\eps = \num{0.30}$, \ac{BIM} \SI{20.1}{\percent},
+and \ac{PGD} \SI{9.4}{\percent}~\cite{Goodfellow2015,Kurakin2017,Madry2018}.
+The gap between BIM and PGD highlights that local gradient structure, not
+random initialisation, dominates in this feature domain — a finding with
+direct implications for NDE audit design.
+
+The unified framework is delivered as a three-tab interactive \emph{Plotly
+Dash} dashboard with click-to-inspect FAD assessment and segment-level
+adversarial threat scoring, validated by a 310-test suite with full
+coverage across all public interfaces.  The methodology is directly
+extensible to Mediterranean transmission assets, including TAP and
+SNAM~Rete~Gas corridors, using the same calibration pipeline with
+locally-sourced incident data.
+
+\vspace{0.6em}
+\noindent\rule{\textwidth}{0.4pt}
+
+\vspace{0.5em}
+\noindent\textbf{Keywords:}
+pipeline security, Bayesian Stackelberg game, BS~7910 fracture assessment,
+IIW fatigue, adversarial machine learning, non-destructive examination,
+critical infrastructure protection, PHMSA calibration, FGSM, PGD,
+Monte Carlo failure probability

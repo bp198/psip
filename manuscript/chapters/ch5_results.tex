@@ -1,0 +1,206 @@
+%% ============================================================
+%% CHAPTER 5 — RESULTS AND INTEGRATED ANALYSIS
+%% ============================================================
+
+\chapter{Results and Integrated Analysis}
+\label{ch:results}
+
+\section{Chapter Overview}
+\label{sec:results_overview}
+
+This chapter presents the unified results of the four-layer framework,
+integrating the physics engine (Zone~C) and the adversarial NDE model
+(Zone~A) into a coherent analytical picture.  \Cref{sec:results_network}
+examines the network vulnerability landscape.
+\Cref{sec:results_stackelberg} quantifies the benefit of physics-informed
+over uniform defender allocation.  \Cref{sec:results_adv_network} links
+the adversarial ASR to the game-theoretic attacker strategy.
+\Cref{sec:results_dashboard} describes the interactive dashboard as a
+decision-support tool.  \Cref{sec:results_discussion} synthesises the
+three research questions posed in \cref{sec:intro_problem}.
+
+\section{Network Vulnerability Landscape}
+\label{sec:results_network}
+
+\Cref{fig:network_map} in \cref{ch:physics} revealed a strongly
+heterogeneous $\Pf$ landscape: 8 of 22 segments carry $\Pf > \num{0.75}$,
+yet these segments carry \SI{64}{\percent} of the total normalised
+network value (diameter $\times$ length product).  The Pearson correlation
+between $\Pf$ and betweenness centrality is $\rho = \num{+0.41}$,
+indicating a moderate but significant tendency for physically vulnerable
+segments to also lie on critical routing paths --- the precise combination
+that a state-actor adversary (\Cref{tab:attacker_profiles}) is designed
+to exploit.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{fig12_network_property_distributions}
+  \caption{Four-panel network property analysis.
+    \textit{Top-left:} Diameter distribution.
+    \textit{Top-right:} $\Pf$ distribution across 22 segments.
+    \textit{Bottom-left:} Betweenness centrality.
+    \textit{Bottom-right:} Scatter plot of $\Pf$ versus normalised
+    segment value, coloured by seam type.  The positive correlation
+    between structural vulnerability and network centrality provides
+    the strategic rationale for physics-informed resource allocation.}
+  \label{fig:network_props}
+\end{figure}
+
+\section{Benefit of Physics-Informed Stackelberg Allocation}
+\label{sec:results_stackelberg}
+
+\subsection{Scenario Definitions}
+\label{subsec:results_scenarios}
+
+Three defender scenarios are compared:
+
+\begin{enumerate}
+  \item \textbf{Unprotected}: $c_i = 0$ for all $i$. Represents the
+    pre-implementation baseline.
+  \item \textbf{Uniform baseline}: $c_i = B/n = \num{0.30}$ for all $i$.
+    Represents naive equal-allocation without physics information.
+  \item \textbf{Physics-informed SSE}: $\bmc^*$ solving the Bayesian
+    SSE as formulated in \cref{subsec:physics_lp}.
+\end{enumerate}
+
+\subsection{Total Expected Network Loss}
+\label{subsec:results_loss}
+
+Total expected network loss under coverage $\bmc$ and protection
+factor $\delta$ is:
+\begin{equation}
+  \mathcal{L}(\bmc) = \sum_{e \in \mathcal{E}}
+    \Pf(e) \cdot v(e) \cdot \bigl[1 - c_e(1 - \delta)\bigr],
+  \label{eq:network_loss}
+\end{equation}
+where $v(e)$ is the normalised segment value and $\delta = \num{0.25}$.
+\Cref{tab:scenario_comparison} presents the results.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Scenario comparison: total expected network loss under three
+    defender strategies.  All values computed on the 22-segment Gulf
+    Coast network with $\delta = \num{0.25}$ and $B = \num{6.6}$.}
+  \label{tab:scenario_comparison}
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    Scenario & $\mathcal{L}(\bmc)$ & vs.\ Unprotected & vs.\ Baseline \\
+    \midrule
+    Unprotected          & 3.830 & ---             & --- \\
+    Uniform Baseline     & 2.968 & $-\SI{22.5}{\percent}$ & --- \\
+    Physics-Informed SSE & 2.465 & $-\SI{35.7}{\percent}$
+      & $-\SI{17.0}{\percent}$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The key finding: physics-informed allocation reduces network loss by
+\SI{17.0}{\percent} relative to the uniform baseline, at the same
+defender budget.  This additional reduction is attributable solely to
+the physics-informed payoff function: the SSE concentrates resources
+on the subset of segments where $\Pf$ is both high and correlated with
+network centrality, rather than spreading them uniformly.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{fig20_scenario_comparison}
+  \caption{Per-segment residual risk under each scenario (upper panel)
+    and adversarial robustness curves (lower panel).
+    \textit{Upper:} The SSE allocation (navy blue) systematically
+    outperforms the uniform baseline (amber) on the high-$\Pf$
+    segments (right half of $x$-axis), which carry disproportionate
+    network risk.
+    \textit{Lower:} Accuracy versus $\eps$ for FGSM, BIM, and PGD.}
+  \label{fig:scenario_comparison}
+\end{figure}
+
+\section{Adversarial NDE and the Game-Theoretic Attacker}
+\label{sec:results_adv_network}
+
+The Bayesian SSE attacker strategy assigns $q^* = $ SEG\_N012\_N015
+as the dominant target (probability $\approx \num{0.60}$ for the
+\textsc{State Actor} type, \num{0.45} for \textsc{Strategic}).  This
+segment has seam type LF-ERW with \acs{SCF} $= \num{1.8}$, yielding
+an effective adversarial budget of:
+\begin{equation*}
+  \eps_\mathrm{eff} = \num{0.30} \times \frac{1.8}{1.5} = \num{0.36}
+\end{equation*}
+At this $\eps$, the \acs{FGSM} \acs{ASR} is approximately
+\SI{24}{\percent}.  In operational terms: if a state-actor adversary
+targets SEG\_N012\_N015 and simultaneously manipulates its \ac{NDE}
+inspection report, there is a $\sim$24\% probability that the defect
+is classified as CLEAN, deferring remediation and allowing the physical
+attack timeline to proceed undetected.
+
+The \emph{cross-layer threat model} is thus quantified: the attacker
+utility from the Stackelberg game (high $\Pf$, high centrality) and the
+adversarial NDE ASR are positively correlated across segments, as shown
+in \cref{fig:dashboard_intel} (lower right panel).
+
+\section{Interactive Dashboard}
+\label{sec:results_dashboard}
+
+\Cref{fig:dashboard_intel} illustrates the three-tab dashboard delivered
+as Sprint~5.  The dashboard serves two audiences simultaneously:
+
+\begin{itemize}
+  \item \textbf{Integrity engineers}: the click-to-inspect FAD panel
+    shows each segment's assessment point against the BS~7910 Option~1
+    curve, with nominal and critical flaw assessments pre-computed.
+  \item \textbf{Security planners}: the SSE coverage heat-map and
+    scenario comparison tab quantify the cost of uniform vs.\
+    physics-informed allocation in expected loss units directly.
+\end{itemize}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{fig18_dashboard_network_intelligence}
+  \caption{Sprint~5 dashboard: Network Intelligence tab for the highest-risk
+    segment (SEG\_N012\_N015, $\Pf = \num{0.93}$, LF-ERW seam).
+    \textit{Top:} Pipeline network coloured by $\Pf$.
+    \textit{Middle:} BS~7910 FAD assessment (critical flaw outside
+    the envelope).
+    \textit{Bottom:} FGSM adversarial feature perturbation by group,
+    with attack success rate gauge.}
+  \label{fig:dashboard_intel}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{fig19_stackelberg_coverage_heatmap}
+  \caption{Sprint~5 dashboard: Stackelberg Defender tab.
+    \textit{Top-left:} SSE coverage allocation (navy, colour depth
+    $\propto\Pf$).
+    \textit{Top-right:} Uniform baseline (amber, constant $c_i = \num{0.30}$).
+    \textit{Bottom-left:} SSE $-$ baseline gain (green = above baseline,
+    red = below).
+    \textit{Bottom-right:} Budget sensitivity, matching
+    \cref{fig:budget_sensitivity}.}
+  \label{fig:dashboard_game}
+\end{figure}
+
+\section{Discussion}
+\label{sec:results_discussion}
+
+\paragraph{Research Question 1} (Does physics-informed payoff produce a
+qualitatively different SSE?)\quad Yes.  The uniform baseline assigns
+identical protection to a seamless X65 DSAW segment ($\Pf = \num{0.29}$)
+and to an LF-ERW legacy segment ($\Pf = \num{0.93}$).  The
+physics-informed SSE assigns \SI{0}{\percent} coverage to the former and
+\SI{$>$30}{\percent} to the latter, producing a structurally concentrated
+allocation that no abstract constant payoff would generate.
+
+\paragraph{Research Question 2} (How does the SSE compare to uniform
+allocation?)\quad The SSE achieves a \SI{17.0}{\percent} reduction in
+total expected network loss at the same budget.  This is achieved through
+a convex redistribution: the top 5 segments (by $\Pf \times$ centrality)
+receive $\approx\SI{60}{\percent}$ of the budget.
+
+\paragraph{Research Question 3} (Can an adversary suppress the $\Pf$
+signal via NDE manipulation?)\quad Yes, with \ac{BIM} \acs{ASR} of
+\SI{20.1}{\percent} at $\eps = \num{0.30}$.  The physics-informed
+$\eps$ scaling (\cref{eq:eps_scaling}) reveals that the most
+game-theoretically targeted segments are also those most susceptible to
+adversarial NDE manipulation, identifying a compounding risk that neither
+the structural integrity nor the security game literature has previously
+quantified.

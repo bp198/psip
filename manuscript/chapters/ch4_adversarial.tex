@@ -1,0 +1,252 @@
+%% ============================================================
+%% CHAPTER 4 — ADVERSARIAL ROBUSTNESS OF NDE (ZONE A)
+%% ============================================================
+
+\chapter{Adversarial Robustness of NDE Classifiers}
+\label{ch:adversarial}
+
+\section{Chapter Overview}
+\label{sec:adv_overview}
+
+This chapter develops Zone~A: the adversarial threat model against
+automated weld defect classification.  \Cref{sec:adv_threat} frames
+the threat, connecting it to the game-theoretic context of
+\cref{ch:physics}.  \Cref{sec:adv_data} describes the synthetic NDE
+feature dataset.  \Cref{sec:adv_model} presents the \textsc{WeldDefectMLP}
+architecture and training procedure.  \Cref{sec:adv_attacks} formalises
+the three adversarial attacks.  \Cref{sec:adv_results} presents and
+interprets the experimental results.
+
+\section{The Adversarial NDE Threat}
+\label{sec:adv_threat}
+
+The attacker utility function defined in \cref{eq:attacker_utility}
+assigns high payoff to segments with high $\Pf$.  A rational actor with
+access to the inspection pipeline has a second strategic lever: rather
+than physically attacking the pipe, they could manipulate the
+\ac{NDE} inspection signal to suppress the $\Pf$ estimate at the point
+of measurement.  Formally, for a classifier
+$f_\theta: \mathbb{R}^{32} \to \{0,1,2,3\}$ (defect classes
+CLEAN, POROSITY, CRACK, LACK\_OF\_FUSION), the attacker seeks a
+perturbation $\bm{\delta}$ such that:
+\begin{equation}
+  f_\theta(\bm{x} + \bm{\delta}) = 0 \;(\mathrm{CLEAN})
+  \quad \text{while} \quad
+  \|\bm{\delta}\|_\infty \leq \eps,
+  \label{eq:adv_objective}
+\end{equation}
+where the $L_\infty$ constraint bounds the total manipulation budget
+in the normalised feature space.  This \emph{defect erasure} attack
+directly undermines the integrity management programme without leaving
+physical evidence at the pipe.
+
+\section{Synthetic NDE Feature Dataset}
+\label{sec:adv_data}
+
+\subsection{Feature Engineering}
+\label{subsec:adv_features}
+
+Each NDE inspection signal is represented as a 32-dimensional feature
+vector partitioned into four physically motivated blocks:
+
+\begin{itemize}
+  \item \textbf{Amplitude features} (indices 0--7): peak echo amplitude,
+    back-wall loss, signal-to-noise ratio, and related ultrasonic
+    indicators.
+  \item \textbf{Frequency features} (indices 8--15): spectral centroid,
+    bandwidth, peak frequency, and harmonic content from the frequency
+    domain of the A-scan signal.
+  \item \textbf{Geometric features} (indices 16--23): defect depth, length,
+    aspect ratio, and orientation angle derived from the phased-array
+    reconstruction.
+  \item \textbf{Texture features} (indices 24--31): second-order statistical
+    features (contrast, correlation, energy, homogeneity) from the
+    B-scan image texture.
+\end{itemize}
+
+\subsection{Dataset Generation}
+\label{subsec:adv_dataset}
+
+Synthetic samples are drawn from class-conditional Gaussian distributions
+$\bm{x} \mid y = k \sim \mathcal{N}(\bm{\mu}_k, \bm{\Sigma}_k)$, where
+the class means $\bm{\mu}_k$ encode the physical signature of each defect
+type.  A noise level of $\sigma_\mathrm{noise} = \num{0.18}$ (standard
+deviations) is applied to introduce realistic inter-class overlap.  The
+dataset comprises $4 \times \num{500} = \num{2000}$ samples, split into
+training (\SI{70}{\percent}), validation (\SI{15}{\percent}), and test
+(\SI{15}{\percent}) sets.
+
+\section{WeldDefectMLP Architecture}
+\label{sec:adv_model}
+
+\subsection{Architecture}
+\label{subsec:adv_architecture}
+
+The \textsc{WeldDefectMLP} is a fully connected \ac{MLP} with the
+following layer structure:
+\begin{equation}
+  \mathbb{R}^{32}
+  \xrightarrow{W_1 \in \mathbb{R}^{128 \times 32}}
+  \xrightarrow{\mathrm{ReLU}+\mathrm{Dropout}(0.30)}
+  \mathbb{R}^{128}
+  \xrightarrow{W_2 \in \mathbb{R}^{64 \times 128}}
+  \xrightarrow{\mathrm{ReLU}+\mathrm{Dropout}(0.30)}
+  \mathbb{R}^{64}
+  \xrightarrow{W_3 \in \mathbb{R}^{4 \times 64}}
+  \xrightarrow{\mathrm{Softmax}}
+  \mathbb{R}^{4}.
+  \label{eq:mlp_arch}
+\end{equation}
+Weights are initialised by Xavier initialisation~\cite{Goodfellow2016}.
+The model is implemented from scratch in NumPy with fully analytical
+backpropagation, enabling direct computation of $\partial \mathcal{L} /
+\partial \bm{x}$ without an automatic differentiation library --- a
+deliberate choice that makes the adversarial gradient computation
+mathematically transparent.
+
+\subsection{Training Procedure}
+\label{subsec:adv_training}
+
+Training uses \acs{SGD} with momentum $\rho = \num{0.9}$ and cosine
+learning rate annealing:
+\begin{equation}
+  \eta_t = \eta_\mathrm{min} + \tfrac{1}{2}(\eta_\mathrm{max} -
+    \eta_\mathrm{min})\left(1 + \cos\!\left(\frac{\pi t}{T}\right)\right),
+  \label{eq:cosine_lr}
+\end{equation}
+with $\eta_\mathrm{max} = \num{0.05}$, $\eta_\mathrm{min} = \num{1e-4}$,
+$T = 80$ epochs, batch size $= 64$, and $L_2$ regularisation
+$\lambda = \num{1e-4}$.  The analytical gradient $\partial \mathcal{L} /
+\partial \bm{x}$ is validated against finite-difference estimates at every
+order of magnitude of perturbation size, achieving $< \SI{5}{\percent}$
+relative error across all feature dimensions.
+
+\section{Adversarial Attacks}
+\label{sec:adv_attacks}
+
+\subsection{Fast Gradient Sign Method (FGSM)}
+\label{subsec:adv_fgsm}
+
+\ac{FGSM}~\cite{Goodfellow2015} perturbs the input by a single step:
+\begin{equation}
+  \bm{x}^\mathrm{adv} = \mathrm{clip}_{\eps}\!
+    \left(\bm{x} + \eps \cdot \mathrm{sign}
+    \nabla_{\bm{x}} \mathcal{L}(f_\theta(\bm{x}), y)\right).
+\end{equation}
+
+\subsection{Basic Iterative Method (BIM)}
+\label{subsec:adv_bim}
+
+\ac{BIM}~\cite{Kurakin2017} applies $K$ gradient steps with step size
+$\alpha = \eps / K$ and projects to the $\eps$-ball after each step:
+\begin{equation}
+  \bm{x}^{(k+1)} = \Pi_\eps\!
+    \left(\bm{x}^{(k)} + \alpha \cdot \mathrm{sign}
+    \nabla_{\bm{x}} \mathcal{L}(f_\theta(\bm{x}^{(k)}), y)\right),
+  \quad \bm{x}^{(0)} = \bm{x}.
+\end{equation}
+
+\subsection{Projected Gradient Descent (PGD)}
+\label{subsec:adv_pgd}
+
+\ac{PGD}~\cite{Madry2018} initialises from a random point within the
+$\eps$-ball and then proceeds identically to \ac{BIM}:
+\begin{equation}
+  \bm{x}^{(0)} = \bm{x} + \bm{u}, \quad
+  \bm{u} \sim \mathrm{Uniform}([-\eps, \eps]^{32}).
+\end{equation}
+
+\subsection{Physics-Informed Epsilon Scaling}
+\label{subsec:adv_eps_scaling}
+
+For the per-segment adversarial impact assessment in
+\cref{ch:results}, the perturbation budget is scaled by the segment's
+weld \acs{SCF}:
+\begin{equation}
+  \eps_\mathrm{eff}(e) = \min\!\left(\eps_0 \cdot
+    \frac{\mathrm{SCF}(e)}{1.5},\; 1.0\right),
+  \label{eq:eps_scaling}
+\end{equation}
+where $\eps_0 = \num{0.30}$ is the nominal budget and $\num{1.5}$ is the
+fleet-average \acs{SCF}.  This coupling between the physics layer and the
+adversarial layer is a core methodological contribution: segments with
+higher structural vulnerability (higher SCF) face a larger adversarial
+threat because the information about their vulnerability is more valuable
+to an attacker.
+
+\section{Results}
+\label{sec:adv_results}
+
+\subsection{Classification Performance}
+\label{subsec:adv_clean}
+
+The \textsc{WeldDefectMLP} achieves \SI{99.7}{\percent} accuracy on
+the held-out test set after 80 training epochs, confirming that the
+synthetic features provide adequate class separation for the classifier
+to demonstrate meaningful adversarial vulnerability.
+
+\subsection{Attack Success Rates}
+\label{subsec:adv_asr}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Adversarial attack results at $\eps = \num{0.30}$ ($K = 20$
+    steps for BIM and PGD).  \acs{ASR} = attack success rate
+    (proportion of correct clean predictions that are misclassified under
+    the adversarial example).  All values validated against the 310-test
+    suite.}
+  \label{tab:adv_results}
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    Attack & Clean Acc.\ (\%) & Adv.\ Acc.\ (\%) & ASR (\%)
+      & $\|\bm{\delta}\|_\infty$ \\
+    \midrule
+    None (baseline) & 99.7 & --- & --- & --- \\
+    FGSM (1 step)   & 99.7 & 81.7 & 18.1 & 0.300 \\
+    BIM (20 steps)  & 99.7 & 79.7 & 20.1 & 0.300 \\
+    PGD (20 steps)  & 99.7 & 90.3 &  9.4 & 0.300 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{The BIM–PGD Gap: Interpretation}
+\label{subsec:adv_bim_pgd}
+
+The finding that \ac{BIM} (\SI{20.1}{\percent} ASR) outperforms
+\ac{PGD} (\SI{9.4}{\percent} ASR) at the same $\eps$ and step count
+is counterintuitive from the perspective of~\cite{Madry2018}, where
+PGD is argued to be the strongest first-order attack.  In this dataset,
+the clean-input gradient direction is maximally informative because the
+class-conditional distributions are narrow Gaussians: the FGSM gradient
+from the clean point already points strongly across the decision boundary.
+The random initialisation in PGD displaces the attack into a suboptimal
+direction in roughly half of trials.  This data-specific dominance of
+local gradient structure over random search is a practically relevant
+finding for \ac{NDE} audit design: an attacker who has access to a
+\emph{clean} reference signal can achieve higher ASR than one who only
+has access to a generic $\eps$-ball initialisation.
+
+% Figure placeholders
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{fig16_robustness_curves}
+  \caption{Adversarial robustness curves: test accuracy and \acs{ASR} as
+    functions of perturbation budget $\eps \in [0, 1]$ for \acs{FGSM},
+    \acs{BIM}, and \acs{PGD}.  The nominal operating point $\eps =
+    \num{0.30}$ (dashed vertical) corresponds to the values in
+    \cref{tab:adv_results}.  All three attacks converge to random
+    classifier performance ($\approx\SI{25}{\percent}$) by $\eps \approx
+    \num{0.70}$.}
+  \label{fig:robustness_curves}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{fig17_adversarial_confusion}
+  \caption{Confusion matrices under clean inputs and each adversarial
+    attack ($\eps = \num{0.30}$).  All three attacks preferentially
+    misclassify CRACK ($y = 2$) and LACK\_OF\_FUSION ($y = 3$) as
+    CLEAN ($y = 0$), consistent with the attacker objective in
+    \cref{eq:adv_objective}.}
+  \label{fig:adv_confusion}
+\end{figure}

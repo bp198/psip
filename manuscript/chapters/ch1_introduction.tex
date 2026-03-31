@@ -1,0 +1,226 @@
+%% ============================================================
+%% CHAPTER 1 — INTRODUCTION
+%% ============================================================
+
+\chapter{Introduction}
+\label{ch:introduction}
+
+\section{Motivation and Strategic Context}
+\label{sec:intro_motivation}
+
+Natural gas transmission pipelines are load-bearing arteries of modern
+states: the \ac{TEN-E} network alone delivers \SI{>400}{bcm}
+per year across 27 EU member states, while Gulf Coast corridors in the
+United States carry a comparable volume domestically~\cite{PHMSA2024}.
+Their disruption — whether by material failure, physical sabotage, or
+cyber-physical manipulation — constitutes a dual economic and security
+crisis.  In the European context, this is not a theoretical concern.
+The 2022 Nord Stream I/II ruptures — the largest deliberate destruction
+of subsea gas infrastructure in history — destroyed approximately
+\SI{1200}{\kilo\meter} of DSAW-welded pipe operating at \SI{22}{\mega\pascal}
+and removed \SI{55}{bcm\,yr^{-1}} of transmission
+capacity from European markets overnight.  In the United States, the
+2021 Colonial Pipeline ransomware incident shut \SI{8850}{\kilo\meter}
+of refined-product pipeline for six days, triggering regional fuel
+shortages across the southeastern seaboard and a declaration of emergency
+in 17 states.  Both events illustrate that pipeline infrastructure sits
+at the precise intersection of structural engineering, network resilience,
+and adversarial intent — domains that have, until now, been modelled
+entirely in isolation.
+
+The strategic importance of pipeline security is underscored by the
+legislative response.  The EU Critical Entities Resilience Directive
+(CER, 2022/2557) explicitly identifies gas transmission networks as
+critical entities and mandates risk assessments that account for both
+physical sabotage and cyber-physical threats by 2026.  Mediterranean
+corridors — the Trans-Adriatic Pipeline (\ac{TAP}), the Trans-Anatolian
+Pipeline (TANAP), and the SNAM~Rete~Gas onshore network — are classified
+as Projects of Common Interest under the revised \ac{TEN-E} Regulation
+(EU~2022/869) and carry particular strategic weight as diversification
+assets in the post-Nord~Stream security environment.  Any analytical
+framework that aspires to inform resource allocation decisions for these
+assets must therefore bridge structural integrity and adversarial
+strategy simultaneously.
+
+Contemporary risk frameworks fail this test.  Regulatory standards such
+as \ac{ASME}~B31.8~\cite{ASME_B31_8:2025} and \ac{BS7910}:2019~\cite{BS7910:2019}
+provide rigorous tools for assessing structural integrity but make no
+provision for strategic adversaries — they quantify the probability that
+a flawed weld fails under pressure loading, not the probability that a
+rational actor will target that weld.  Security game models have
+demonstrated impressive real-world deployments — from \ac{LAX} patrol
+scheduling~\cite{An2013} to ferry route randomisation~\cite{Tambe2011} —
+but universally assign attacker payoffs from abstract scalar constants
+supplied by subject-matter experts, entirely uncoupled from physical
+reality.  The failure probability $\Pf = 0.88$ of a fillet-welded
+legacy segment at maximum allowable operating pressure is categorically
+different from $\Pf = 0.53$ for a seamless X65 section; yet no extant
+Bayesian Stackelberg formulation encodes this distinction.  A technically
+sophisticated attacker who reads BS~7910 enjoys a systematic information
+advantage over a defender whose game model ignores the standard entirely.
+
+This thesis proposes and validates a remedy: a physics-informed payoff
+function derived from first-principles fracture mechanics, calibrated against
+\num{1996} \ac{PHMSA} gas transmission incidents (2010--2024), and embedded
+directly into a Bayesian \ac{SSE}~\cite{Paruchuri2008} over a realistic
+pipeline network topology.  A second, equally novel contribution addresses
+the \emph{adversarial NDE threat}: the possibility that a sophisticated
+actor could manipulate the very inspection system designed to detect
+structural deterioration, forcing a physically vulnerable weld to register
+as sound — an intelligence preparation of the operational environment that
+creates the conditions for a subsequent physical attack.
+
+\section{Problem Statement}
+\label{sec:intro_problem}
+
+Let $G = (\mathcal{V}, \mathcal{E})$ be a pipeline network where each
+edge $e \in \mathcal{E}$ is characterised by physical attributes
+$(D_e, t_e, \sigma_{y,e}, \text{seam}_e)$ — outer diameter, wall
+thickness, yield strength, and seam type.  The \emph{physics-informed
+attacker utility} is:
+\begin{equation}
+  \Ua(e) = w_{\Pf}\,\Pf(e) + w_v\,v(e) + w_b\,b(e),
+  \label{eq:attacker_utility}
+\end{equation}
+where $\Pf(e)$ is the segment failure probability derived from BS~7910
+Level~2 fracture assessment and \acs{IIW} fatigue analysis,
+$v(e)$ is a normalised strategic value (diameter $\times$ length), and
+$b(e)$ is the normalised betweenness centrality.  The weights
+$w_{\Pf}, w_v, w_b$ are type-specific for each of the three adversary
+profiles defined in \cref{ch:physics}.
+
+The defender allocates a budget $B$ by choosing coverage probabilities
+$\bmc \in [0,1]^{|\mathcal{E}|}$ to minimise network-level expected loss.
+This yields the following three-part research question:
+
+\begin{enumerate}
+  \item Does replacing abstract payoffs with $\Pf$ values derived from
+    \acs{BS7910} fracture mechanics produce a qualitatively different
+    \ac{SSE} than uniform vulnerability assumptions?
+  \item How does the physics-informed \ac{SSE} compare to uniform
+    resource allocation in terms of total network expected loss?
+  \item Can a white-box adversary suppress the $\Pf$ signal by
+    manipulating \ac{NDE} inspection data at the segment level?
+\end{enumerate}
+
+\section{Thesis Contributions}
+\label{sec:intro_contributions}
+
+This thesis makes the following original contributions:
+
+\begin{enumerate}
+  \item \textbf{Physics-Informed Payoff Engine.}  A \ac{MC} failure
+    probability model grounded in \ac{BS7910}:2019 Level~2 \ac{FAD}
+    and \acs{IIW} fatigue classification, calibrated against 216
+    material/weld failure events extracted from the \ac{PHMSA} incident
+    database.  The engine reproduces the empirical failure-rate hierarchy
+    across six seam types (seamless to fillet-welded legacy pipe) with
+    $\Pf \in [\num{0.29}, \num{0.93}]$ across the test network
+    (\cref{ch:physics}).
+
+  \item \textbf{Bayesian Stackelberg Security Game.}  A three-attacker-type
+    Bayesian \ac{SSE} with LP-enumeration solver, where attacker utilities
+    are supplied directly by the physics engine.  At a \SI{30}{\percent}
+    defender budget, the physics-informed allocation achieves
+    $+\SI{52.3}{\percent}$ coverage effectiveness and a \SI{17.0}{\percent}
+    reduction in total expected network loss versus a uniform baseline
+    (\cref{ch:physics}).
+
+  \item \textbf{Adversarial NDE Threat Model.}  A from-scratch NumPy
+    \ac{MLP} weld defect classifier (32-feature, 99.7\% clean accuracy),
+    attacked by \ac{FGSM}~\cite{Goodfellow2015},
+    \ac{BIM}~\cite{Kurakin2017}, and \ac{PGD}~\cite{Madry2018} with
+    physics-informed $\eps$ scaling.  \ac{BIM} achieves the highest
+    \ac{ASR} of \SI{20.1}{\percent} at $\eps = \num{0.30}$, revealing
+    the exploitable gap between iterative and random-start attacks on this
+    feature geometry (\cref{ch:adversarial}).
+
+  \item \textbf{Integrated Dashboard.}  A Plotly Dash application unifying
+    all four model layers — network \ac{FAD}, Stackelberg coverage, \ac{NDE}
+    adversarial impact — with click-to-inspect segment intelligence and
+    scenario comparison (\cref{ch:results}).  The implementation comprises
+    310 unit tests with full public-interface coverage.
+\end{enumerate}
+
+\section{Thesis Scope and Limitations}
+\label{sec:intro_scope}
+
+The network topology used throughout is \emph{synthetic}: a 20-node,
+22-segment Gulf Coast transmission corridor generated to match \ac{PHMSA}
+fleet statistics rather than any specific operator's infrastructure.  This
+is a deliberate choice to avoid intellectual property constraints while
+retaining physical realism.  The \ac{NDE} classifier is trained on
+synthetic signal features rather than real radiograph images, as no
+public dataset of labelled weld radiographs at the required scale is
+available.  The adversarial attacks are therefore evaluated in a
+feature-vector threat model (\ac{FGSM}/\ac{BIM}/\ac{PGD} on z-score
+normalised features) rather than against raw image data.
+
+Extensions to real network topologies (TAP, SNAM~Rete~Gas) and image-based
+NDE pipelines using convolutional architectures are discussed in
+\cref{ch:conclusion}.
+
+\section{Regulatory Framework}
+\label{sec:intro_regulatory}
+
+The physics-informed failure assessment operates within a hierarchy of
+international standards, each playing a distinct role in the analytical
+chain.
+
+\ac{BS7910}:2019~\cite{BS7910:2019} is the primary assessment standard,
+providing the Level~2 Option~1 \ac{FAD} curve, the stress intensity
+factor solution for surface flaws in cylindrical shells (Annex~M), and
+the partial safety factor calibration used for probabilistic assessments
+(Annex~K).  It is the preferred standard for European pipeline operators
+and is the basis for all fracture assessments in \cref{ch:physics}.
+
+\acs{ASME}~B31.8:2025~\cite{ASME_B31_8:2025} governs pressure design
+and integrity management for gas transmission piping systems in the
+United States, from which the \acs{PHMSA} incident database is drawn.
+Its \SI{72}{\percent}~\acs{SMYS} design factor and high-consequence area
+(HCA) classification are used in setting the operating pressure boundary
+conditions for the Monte Carlo engine.
+
+\acs{API}~1104:2021~\cite{API1104:2021} provides the acceptance criteria
+for weld flaws detected during construction inspection and in-service
+in-line inspection.  These criteria define the upper bound on flaw
+dimensions used to truncate the Monte Carlo sampling distributions:
+any flaw exceeding the API~1104 acceptance limit would trigger
+immediate remediation and is therefore excluded from the long-term
+failure probability assessment.
+
+\acs{API}~579-1/\acs{ASME}~FFS-1:2021~\cite{API579:2021} serves as a
+cross-reference for the reference stress solution and provides the
+alternative FFS Level~2 acceptance criteria against which the
+BS~7910 results are compared in \cref{subsec:physics_kr_lr}.  The
+two standards agree within \SI{3}{\percent} on $L_r$ for the pipeline
+geometry range used in this thesis.
+
+The \acs{IIW} Fatigue Design Recommendations~\cite{IIW_Fatigue:2016}
+provide the S-N curve classification system (FAT class assignments)
+and the bilinear damage model used in the \texttt{fatigue\_engine.py}
+module.  DNVGL-RP-F101:2017~\cite{DNVGL_RPF101:2017} is cited for
+corrosion-related wall thickness input distributions.
+
+\noindent All numerical values in \cref{ch:physics} that reference these
+standards are drawn from the edition and clause specified above; no
+earlier editions are used.
+
+\section{Thesis Structure}
+\label{sec:intro_structure}
+
+The remainder of the thesis is organised as follows.
+\Cref{ch:literature} surveys the three foundational bodies of literature:
+pipeline structural integrity, Stackelberg security games, and adversarial
+robustness of \ac{NDE} systems.
+\Cref{ch:physics} develops the physics-informed vulnerability engine
+(Zone~C): the \ac{MC} $\Pf$ model, the network graph, and the Bayesian
+\ac{SSE}.
+\Cref{ch:adversarial} presents the adversarial \ac{NDE} threat model
+(Zone~A): the \ac{MLP} classifier, its training, and the three attack
+implementations.
+\Cref{ch:results} integrates all layers, presents the 17.0\% risk
+reduction finding, and analyses the dashboard scenario comparison.
+\Cref{ch:conclusion} synthesises the contributions, discusses applicability
+to Mediterranean pipeline corridors, and proposes six directions for
+future research.
