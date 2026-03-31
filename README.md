@@ -1,6 +1,6 @@
 # PSIP — Pipeline Security & Integrity Platform
 
-[![CI](https://github.com/bp198/strategos-pipeline-defense/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/strategos-pipeline-defense/actions/workflows/ci.yml)
+[![CI](https://github.com/bp198/psip/actions/workflows/ci.yml/badge.svg)](https://github.com/bp198/psip/actions/workflows/ci.yml)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
@@ -29,8 +29,8 @@ Key results from the thesis: P_f range [0.29, 0.93], **17.0% risk reduction** vs
 
 ```bash
 # Clone and install
-git clone https://github.com/YOUR_USERNAME/strategos-pipeline-defense.git
-cd strategos-pipeline-defense
+git clone https://github.com/bp198/psip.git
+cd psip
 pip install -e ".[dev]"
 
 # Run the API locally

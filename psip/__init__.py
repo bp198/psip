@@ -57,12 +57,12 @@ __all__ = ["run_fad", "run_mc", "run_game", "run_adversarial"]
 # ---------------------------------------------------------------------------
 # Sub-package imports (lazy-style: only pulled in when psip itself is used)
 # ---------------------------------------------------------------------------
-from psip import fad, mc, game, nde, adversarial, network, fatigue
-
+from psip import adversarial, fad, fatigue, game, mc, nde, network  # noqa: F401
 
 # ---------------------------------------------------------------------------
 # High-level convenience functions
 # ---------------------------------------------------------------------------
+
 
 def run_fad(
     sigma_y: float,
@@ -195,7 +195,7 @@ def run_game(network_graph, budget: float, attacker_priors: dict | None = None):
         Contains: coverage (dict segment→c_i*), sse_defender_utility,
         risk_reduction_pct, attacker_best_response, and per-type SSEResults.
     """
-    from src.zone_c.game.stackelberg_game import AttackerType, AttackerProfile
+    from src.zone_c.game.stackelberg_game import AttackerProfile, AttackerType
 
     if attacker_priors is None:
         attacker_priors = {
@@ -248,8 +248,6 @@ def run_adversarial(
         Contains: X_adv, attack_success_rate, per_sample_success,
         original_predictions, adversarial_predictions.
     """
-    import numpy as np
-
     config = adversarial.AttackConfig(
         epsilon=epsilon,
         n_steps=n_steps,
