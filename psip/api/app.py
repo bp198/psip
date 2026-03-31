@@ -5,6 +5,7 @@ All engine routers are registered here under the /api prefix.
 Interactive documentation is auto-generated at /docs (Swagger UI)
 and /redoc (ReDoc).
 """
+
 from __future__ import annotations
 
 from fastapi import FastAPI
@@ -12,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 import psip
 from psip.api.models import HealthResponse
-from psip.api.routers import fad, mc, game, adversarial, network
+from psip.api.routers import adversarial, fad, game, mc, network
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Application
@@ -25,7 +26,8 @@ app = FastAPI(
         "This API wraps four computation engines developed in the STRATEGOS MSc thesis "
         "(Babak Pirzadi, 2025):\n\n"
         "- **FAD** — BS 7910:2019 Level 2 Failure Assessment Diagram\n"
-        "- **MC** — Monte Carlo failure probability (calibrated against PHMSA 1,996-record dataset)\n"
+        "- **MC** — Monte Carlo failure probability "
+        "(calibrated against PHMSA 1,996-record dataset)\n"
         "- **Game** — Bayesian Stackelberg Security Equilibrium (LP enumeration / DOBSS)\n"
         "- **Adversarial** — FGSM / BIM / PGD attacks on the WeldDefectMLP NDE classifier\n\n"
         "All endpoints are fully documented below. Click **Try it out** on any endpoint "
@@ -42,24 +44,26 @@ app = FastAPI(
         {
             "name": "FAD Assessment",
             "description": "BS 7910:2019 Level 2 Failure Assessment Diagram engine. "
-                           "Determines whether a weld flaw is acceptable under operating conditions.",
+            "Determines whether a weld flaw is acceptable under operating conditions.",
         },
         {
             "name": "Monte Carlo Simulation",
             "description": "Monte Carlo failure probability engine. "
-                           "Propagates uncertainty in flaw size, toughness, and pressure "
-                           "through the FAD framework to compute P_f.",
+            "Propagates uncertainty in flaw size, toughness, and pressure "
+            "through the FAD framework to compute P_f.",
         },
         {
             "name": "Stackelberg Game",
             "description": "Bayesian Stackelberg Security Equilibrium solver. "
-                           "Computes the optimal defender coverage allocation over a pipeline network "
-                           "against multiple attacker types.",
+            "Computes the optimal defender coverage allocation over a pipeline network "
+            "against multiple attacker types.",
         },
         {
             "name": "Adversarial Attacks",
-            "description": "FGSM / BIM / PGD adversarial attack evaluation on the WeldDefectMLP classifier. "
-                           "Supports physics-informed ε scaling.",
+            "description": (
+                "FGSM / BIM / PGD adversarial attack evaluation on the WeldDefectMLP classifier. "
+                "Supports physics-informed ε scaling."
+            ),
         },
         {
             "name": "Network",
@@ -81,16 +85,17 @@ app.add_middleware(
 # Routers
 # ─────────────────────────────────────────────────────────────────────────────
 
-app.include_router(fad.router,         prefix="/api")
-app.include_router(mc.router,          prefix="/api")
-app.include_router(game.router,        prefix="/api")
+app.include_router(fad.router, prefix="/api")
+app.include_router(mc.router, prefix="/api")
+app.include_router(game.router, prefix="/api")
 app.include_router(adversarial.router, prefix="/api")
-app.include_router(network.router,     prefix="/api")
+app.include_router(network.router, prefix="/api")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Health
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 @app.get(
     "/api/health",

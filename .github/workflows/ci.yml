@@ -97,7 +97,7 @@ jobs:
 
       - name: Run ruff
         run: |
-          ruff check src/ psip/ --output-format=github
+          ruff check psip/ --output-format=github
         # Note: ruff is configured in pyproject.toml [tool.ruff]
         # Current settings: line-length=100, select E/F/I/W
 

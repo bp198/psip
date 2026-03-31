@@ -1,16 +1,17 @@
 """
 /api/adversarial — Adversarial attack on WeldDefectMLP router.
 """
+
 from __future__ import annotations
 
-import numpy as np
 from fastapi import APIRouter, HTTPException
-from psip.api.models import AdversarialRequest, AdversarialResponse
-import psip.nde as nde_engine
+
 import psip.adversarial as adv_engine
+import psip.nde as nde_engine
+from psip.api.models import AdversarialRequest, AdversarialResponse
 
 # Import generate_nde_dataset and normalise_features from source
-from src.zone_a.synthetic_data import generate_nde_dataset, normalise_features, DefectClass
+from src.zone_a.synthetic_data import generate_nde_dataset, normalise_features
 
 router = APIRouter(prefix="/adversarial", tags=["Adversarial Attacks"])
 
@@ -23,8 +24,8 @@ _CLASS_NAMES = {
 
 _ATTACK_MAP = {
     "fgsm": adv_engine.fgsm_attack,
-    "bim":  adv_engine.bim_attack,
-    "pgd":  adv_engine.pgd_attack,
+    "bim": adv_engine.bim_attack,
+    "pgd": adv_engine.pgd_attack,
 }
 
 
@@ -52,20 +53,21 @@ def attack(req: AdversarialRequest) -> AdversarialResponse:
     epsilon_eff = req.epsilon * (req.scf / 1.5) if req.physics_scaled else req.epsilon
 
     try:
-        rng = np.random.default_rng(req.random_seed)
-
         # 1. Generate synthetic NDE dataset
         n_per_class = max(req.n_samples // 4, 50)
         dataset = generate_nde_dataset(
-            n_samples_per_class=n_per_class * 4, seed=req.random_seed,
+            n_samples_per_class=n_per_class * 4,
+            seed=req.random_seed,
         )
         train_ds, val_ds, test_ds = dataset.split(
-            train_fraction=0.70, val_fraction=0.15, seed=req.random_seed,
+            train_fraction=0.70,
+            val_fraction=0.15,
+            seed=req.random_seed,
         )
 
         X_train, mean_, std_ = normalise_features(train_ds.X)
         X_test = (test_ds.X - mean_) / (std_ + 1e-8)
-        X_val  = (val_ds.X  - mean_) / (std_ + 1e-8)
+        X_val = (val_ds.X - mean_) / (std_ + 1e-8)
         y_train, y_test = train_ds.y, test_ds.y
         y_val = val_ds.y
 
@@ -96,11 +98,11 @@ def attack(req: AdversarialRequest) -> AdversarialResponse:
             class_breakdown[cls_name] = 0.0
             continue
         # Among correctly-classified clean samples of this class, how many flipped?
-        correct_clean = (result.y_clean_pred[mask] == result.y_true[mask])
+        correct_clean = result.y_clean_pred[mask] == result.y_true[mask]
         if correct_clean.sum() == 0:
             class_breakdown[cls_name] = 0.0
         else:
-            flipped = (result.y_adv_pred[mask][correct_clean] != result.y_true[mask][correct_clean])
+            flipped = result.y_adv_pred[mask][correct_clean] != result.y_true[mask][correct_clean]
             class_breakdown[cls_name] = round(float(flipped.mean()) * 100, 2)
 
     return AdversarialResponse(

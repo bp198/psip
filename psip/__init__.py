@@ -50,6 +50,8 @@ Version: 0.1.0
 
 from __future__ import annotations
 
+from typing import Any
+
 __version__ = "0.1.0"
 __author__ = "Babak Pirzadi"
 __all__ = ["run_fad", "run_mc", "run_game", "run_adversarial"]
@@ -215,8 +217,8 @@ def run_game(network_graph, budget: float, attacker_priors: dict | None = None):
 
 def run_adversarial(
     model,
-    X: "np.ndarray",
-    y: "np.ndarray",
+    X: Any,
+    y: Any,
     method: str = "pgd",
     epsilon: float = 0.30,
     n_steps: int = 40,
