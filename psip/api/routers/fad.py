@@ -1,9 +1,11 @@
 """
 /api/fad — BS 7910:2019 Level 2 Failure Assessment Diagram router.
 """
+
 from fastapi import APIRouter, HTTPException
-from psip.api.models import FADRequest, FADResponse
+
 import psip.fad as fad_engine
+from psip.api.models import FADRequest, FADResponse
 
 router = APIRouter(prefix="/fad", tags=["FAD Assessment"])
 
@@ -21,18 +23,25 @@ router = APIRouter(prefix="/fad", tags=["FAD Assessment"])
 )
 def assess_flaw(req: FADRequest) -> FADResponse:
     try:
-        mat  = fad_engine.MaterialProperties(
-            sigma_y=req.sigma_y, sigma_u=req.sigma_u,
-            E=req.E, K_mat=req.K_mat,
+        mat = fad_engine.MaterialProperties(
+            sigma_y=req.sigma_y,
+            sigma_u=req.sigma_u,
+            E=req.E,
+            K_mat=req.K_mat,
         )
         pipe = fad_engine.PipeGeometry(
-            outer_diameter=req.outer_diameter, wall_thickness=req.wall_thickness,
+            outer_diameter=req.outer_diameter,
+            wall_thickness=req.wall_thickness,
         )
         flaw = fad_engine.FlawGeometry(a=req.flaw_depth, two_c=req.flaw_length)
         weld = fad_engine.WeldJoint(
-            weld_type=req.weld_type, fat_class=req.fat_class, scf=req.scf,
+            weld_type=req.weld_type,
+            fat_class=req.fat_class,
+            scf=req.scf,
         )
-        result = fad_engine.assess_flaw(mat=mat, pipe=pipe, flaw=flaw, weld=weld, pressure=req.pressure)
+        result = fad_engine.assess_flaw(
+            mat=mat, pipe=pipe, flaw=flaw, weld=weld, pressure=req.pressure
+        )
     except (ValueError, ZeroDivisionError) as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 

@@ -1,10 +1,12 @@
 """
 /api/mc — Monte Carlo failure probability router.
 """
+
 from fastapi import APIRouter, HTTPException
-from psip.api.models import MCRequest, MCResponse
+
 import psip.fad as fad_engine
 import psip.mc as mc_engine
+from psip.api.models import MCRequest, MCResponse
 
 router = APIRouter(prefix="/mc", tags=["Monte Carlo Simulation"])
 
@@ -33,7 +35,8 @@ def simulate(req: MCRequest) -> MCResponse:
     try:
         defaults = mc_engine.default_distributions_api5l_x65()
         pipe = fad_engine.PipeGeometry(
-            outer_diameter=req.outer_diameter, wall_thickness=req.wall_thickness,
+            outer_diameter=req.outer_diameter,
+            wall_thickness=req.wall_thickness,
         )
         weld = fad_engine.WeldJoint(weld_type="butt", fat_class=71, scf=req.scf)
         config = mc_engine.PipelineSegmentConfig(

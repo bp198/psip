@@ -1,27 +1,30 @@
 """
 /api/game — Bayesian Stackelberg Security Equilibrium router.
 """
+
 from __future__ import annotations
 
 from typing import Dict
+
 from fastapi import APIRouter, HTTPException
-from psip.api.models import GameRequest, GameResponse
+
 import psip.game as game_engine
 import psip.network as net_engine
+from psip.api.models import GameRequest, GameResponse
 
 router = APIRouter(prefix="/game", tags=["Stackelberg Game"])
 
 # Attacker type string → enum mapping
 _TYPE_MAP = {
-    "strategic":     game_engine.AttackerType.STRATEGIC,
+    "strategic": game_engine.AttackerType.STRATEGIC,
     "opportunistic": game_engine.AttackerType.OPPORTUNISTIC,
-    "state_actor":   game_engine.AttackerType.STATE_ACTOR,
+    "state_actor": game_engine.AttackerType.STATE_ACTOR,
 }
 
 _DEFAULT_PRIORS: Dict[game_engine.AttackerType, float] = {
-    game_engine.AttackerType.STRATEGIC:     0.50,
+    game_engine.AttackerType.STRATEGIC: 0.50,
     game_engine.AttackerType.OPPORTUNISTIC: 0.30,
-    game_engine.AttackerType.STATE_ACTOR:   0.20,
+    game_engine.AttackerType.STATE_ACTOR: 0.20,
 }
 
 
@@ -51,7 +54,7 @@ def solve_game(req: GameRequest) -> GameResponse:
             raise HTTPException(
                 status_code=422,
                 detail=f"Unknown attacker_type(s): {unknown}. "
-                       f"Valid values: {list(_TYPE_MAP.keys())}.",
+                f"Valid values: {list(_TYPE_MAP.keys())}.",
             )
         priors = {_TYPE_MAP[p.attacker_type]: p.prior for p in req.attacker_priors}
     else:
@@ -61,7 +64,9 @@ def solve_game(req: GameRequest) -> GameResponse:
         # Build synthetic network and attach P_f
         net = net_engine.PipelineNetwork(name="psip-api-network")
         net.generate_synthetic(
-            n_nodes=req.n_nodes, n_segments=req.n_segments, seed=req.random_seed,
+            n_nodes=req.n_nodes,
+            n_segments=req.n_segments,
+            seed=req.random_seed,
         )
         net.attach_pf_values()
 
@@ -82,9 +87,7 @@ def solve_game(req: GameRequest) -> GameResponse:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     # Top-3 defended segments
-    top3 = sorted(
-        solution.coverage_by_id.items(), key=lambda x: x[1], reverse=True
-    )[:3]
+    top3 = sorted(solution.coverage_by_id.items(), key=lambda x: x[1], reverse=True)[:3]
 
     return GameResponse(
         equilibrium_type=solution.equilibrium_type,

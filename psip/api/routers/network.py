@@ -1,12 +1,14 @@
 """
 /api/network — Pipeline network summary router.
 """
+
 from __future__ import annotations
 
 import numpy as np
 from fastapi import APIRouter, Query
-from psip.api.models import NetworkSummaryResponse
+
 import psip.network as net_engine
+from psip.api.models import NetworkSummaryResponse
 
 router = APIRouter(prefix="/network", tags=["Network"])
 
@@ -22,9 +24,9 @@ router = APIRouter(prefix="/network", tags=["Network"])
     ),
 )
 def network_summary(
-    n_nodes: int    = Query(20, ge=4,  le=50,  description="Number of nodes."),
-    n_segments: int = Query(22, ge=3,  le=100, description="Number of segments."),
-    seed: int       = Query(42,                description="Random seed for reproducibility."),
+    n_nodes: int = Query(20, ge=4, le=50, description="Number of nodes."),
+    n_segments: int = Query(22, ge=3, le=100, description="Number of segments."),
+    seed: int = Query(42, description="Random seed for reproducibility."),
 ) -> NetworkSummaryResponse:
     net = net_engine.PipelineNetwork(name=f"gulf-coast-{n_nodes}n-{n_segments}s")
     net.generate_synthetic(n_nodes=n_nodes, n_segments=n_segments, seed=seed)
@@ -40,18 +42,20 @@ def network_summary(
     segments_list = []
     for u, v, data in net.graph.edges(data=True):
         seg: net_engine.PipeSegment = data.get("segment")
-        segments_list.append({
-            "id":                data.get("segment_id", "%s-%s" % (u, v)),
-            "from_node":         u,
-            "to_node":           v,
-            "length_km":         round(seg.length_km if seg else 0.0, 2),
-            "P_f":               round(float(data.get("P_f", 0.0)), 4),
-            "P_f_lower":         round(float(data.get("P_f_lower", 0.0)), 4),
-            "P_f_upper":         round(float(data.get("P_f_upper", 0.0)), 4),
-            "material":          seg.material if seg else "unknown",
-            "outer_diameter_mm": seg.outer_diameter if seg else 0.0,
-            "wall_thickness_mm": seg.wall_thickness if seg else 0.0,
-        })
+        segments_list.append(
+            {
+                "id": data.get("segment_id", "%s-%s" % (u, v)),
+                "from_node": u,
+                "to_node": v,
+                "length_km": round(seg.length_km if seg else 0.0, 2),
+                "P_f": round(float(data.get("P_f", 0.0)), 4),
+                "P_f_lower": round(float(data.get("P_f_lower", 0.0)), 4),
+                "P_f_upper": round(float(data.get("P_f_upper", 0.0)), 4),
+                "material": seg.material if seg else "unknown",
+                "outer_diameter_mm": seg.outer_diameter if seg else 0.0,
+                "wall_thickness_mm": seg.wall_thickness if seg else 0.0,
+            }
+        )
 
     return NetworkSummaryResponse(
         name=net.name,
