@@ -54,7 +54,8 @@ RUN pip install --upgrade pip && \
         httpx \
         pydantic>=2.0 \
         "python-jose[cryptography]>=3.3" \
-        "passlib[bcrypt]>=1.7"
+        "passlib[bcrypt]>=1.7" \
+        "bcrypt<4.0.0"
 
 
 # ── Stage 2: Runtime ──────────────────────────────────────────────────────────
