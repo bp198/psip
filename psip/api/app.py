@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 import psip
 from psip.api.models import HealthResponse
+from psip.api.auth import auth_router
 from psip.api.routers import adversarial, fad, game, mc, network
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -37,6 +38,10 @@ app = FastAPI(
     contact={"name": "Babak Pirzadi", "email": "babak.pirzadi@gmail.com"},
     license_info={"name": "MIT"},
     openapi_tags=[
+        {
+            "name": "Authentication",
+            "description": "JWT login and user info. POST /api/auth/login to get a bearer token.",
+        },
         {
             "name": "Health",
             "description": "Service health check.",
@@ -85,6 +90,7 @@ app.add_middleware(
 # Routers
 # ─────────────────────────────────────────────────────────────────────────────
 
+app.include_router(auth_router, prefix="/api")
 app.include_router(fad.router, prefix="/api")
 app.include_router(mc.router, prefix="/api")
 app.include_router(game.router, prefix="/api")

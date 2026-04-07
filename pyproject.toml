@@ -43,6 +43,10 @@ dependencies = [
     # === REST API ===
     "fastapi>=0.100",
     "uvicorn[standard]>=0.23",
+
+    # === Authentication ===
+    "python-jose[cryptography]>=3.3",
+    "passlib[bcrypt]>=1.7",
 ]
 
 [tool.setuptools.packages.find]

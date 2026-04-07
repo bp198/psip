@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { getHealth, getNetwork } from './api/client'
+import LoginForm from './components/LoginForm'
 import NetworkMap from './components/NetworkMap'
 import FADPanel from './components/FADPanel'
 import MCPanel from './components/MCPanel'
@@ -32,6 +33,24 @@ export default function App() {
   const [tab, setTab]         = useState('network')
   const [apiStatus, setApiStatus] = useState('loading')
   const [network, setNetwork] = useState({ segments: [], coverage: {} })
+
+  // ── Auth state ──────────────────────────────────────────────────────────────
+  const [token, setToken]     = useState(() => sessionStorage.getItem('psip_token'))
+  const [authUser, setAuthUser] = useState(null)
+
+  function handleLogin(newToken, username) {
+    setToken(newToken)
+    setAuthUser(username)
+  }
+
+  function handleLogout() {
+    sessionStorage.removeItem('psip_token')
+    setToken(null)
+    setAuthUser(null)
+  }
+
+  // Show login screen if not authenticated
+  if (!token) return <LoginForm onLogin={handleLogin} />
 
   const fetchStatus = useCallback(async () => {
     try {
@@ -77,6 +96,11 @@ export default function App() {
           </div>
           <div className="flex items-center gap-3">
             <StatusBadge status={apiStatus} />
+            {authUser && (
+              <span className="text-xs text-gray-400 hidden sm:inline">
+                👤 {authUser}
+              </span>
+            )}
             <a
               href="https://github.com/bp198/psip"
               target="_blank"
@@ -85,6 +109,12 @@ export default function App() {
             >
               GitHub ↗
             </a>
+            <button
+              onClick={handleLogout}
+              className="text-xs text-gray-400 hover:text-red-600 transition border border-gray-200 rounded px-2 py-1"
+            >
+              Sign out
+            </button>
           </div>
         </div>
       </header>
