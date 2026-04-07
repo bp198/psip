@@ -52,7 +52,9 @@ RUN pip install --upgrade pip && \
         fastapi>=0.100 \
         "uvicorn[standard]>=0.23" \
         httpx \
-        pydantic>=2.0
+        pydantic>=2.0 \
+        "python-jose[cryptography]>=3.3" \
+        "passlib[bcrypt]>=1.7"
 
 
 # ── Stage 2: Runtime ──────────────────────────────────────────────────────────
