@@ -65,9 +65,8 @@ def attack(req: AdversarialRequest) -> AdversarialResponse:
             seed=req.random_seed,
         )
 
-        X_train, mean_, std_ = normalise_features(train_ds.X)
-        X_test = (test_ds.X - mean_) / (std_ + 1e-8)
-        X_val = (val_ds.X - mean_) / (std_ + 1e-8)
+        X_train, X_test, mean_, std_ = normalise_features(train_ds.X, test_ds.X)
+        X_val = (val_ds.X - mean_) / std_
         y_train, y_test = train_ds.y, test_ds.y
         y_val = val_ds.y
 
