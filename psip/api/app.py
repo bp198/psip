@@ -12,8 +12,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 import psip
-from psip.api.models import HealthResponse
 from psip.api.auth import auth_router
+from psip.api.models import HealthResponse
 from psip.api.routers import adversarial, fad, game, mc, network
 
 # ─────────────────────────────────────────────────────────────────────────────
